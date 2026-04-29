@@ -1,0 +1,206 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import InputDimension from '../components/inputDimension.astro';
+import MatrizInput from '../components/MatrizInput.astro';
+import Result from '../components/Result.astro';
+import "../styles/global.css";
+
+const operations = {
+	'suma': {
+		title: 'Suma de matrices',
+		description: 'Combina matrices con la misma dimension y conserva la estructura de cada elemento.',
+	},
+	'resta': {
+		title: 'Resta de matrices',
+		description: 'Resta matrices compatibles para mostrar el cambio elemento por elemento.',
+	},
+	'multiplicacion': {
+		title: 'Multiplicacion de matrices',
+		description: 'Multiplica matrices segun sus dimensiones y la regla de filas por columnas.',
+	},
+	'determinante': {
+		title: 'Determinante',
+		description: 'Calcula el valor determinante de una matriz cuadrada.',
+	},
+	'inversa': {
+		title: 'Matriz inversa',
+		description: 'Encuentra la matriz inversa cuando existe y es invertible.',
+	},
+	'cramer': {
+		title: 'Regla de Cramer',
+		description: 'Resuelve sistemas lineales usando determinantes.',
+	},
+	'gauss': {
+		title: 'Eliminacion de Gauss',
+		description: 'Lleva la matriz a forma escalonada usando operaciones elementales.',
+	},
+	'gauss-jordan': {
+		title: 'Gauss-Jordan Elimination',
+		description: 'Transforma la matriz extendida en forma escalonada reducida para despejar variables con claridad.',
+	},
+};
+
+const activeOperation = operations['gauss-jordan'];
+---
+
+<Layout title="Matrix Solver | Algebra Lineal">
+	<Nav slot="aside" activeKey="gauss-jordan" />
+
+	<main slot="main" class="min-w-0 p-4 sm:p-6 lg:p-8">
+		<header class="mb-5 flex flex-col gap-2">
+			<p class="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-blue-700">Matrix Solver</p>
+			<h1 class="display-font max-w-[15ch] text-4xl font-bold tracking-tighter sm:text-5xl" data-operation-title>{activeOperation.title}</h1>
+			<p class="max-w-3xl text-[0.98rem] leading-7 text-slate-500" data-operation-description>
+				{activeOperation.description}
+			</p>
+		</header>
+
+		<InputDimension />
+
+		<section class="grid gap-5 xl:grid-cols-[minmax(0,1.02fr)_minmax(320px,0.98fr)]">
+			<MatrizInput />
+			<Result />
+		</section>
+	</main>
+</Layout>
+
+<script type="module">
+	const operations = {
+		suma: {
+			title: 'Suma de matrices',
+			description: 'Combina matrices con la misma dimension y conserva la estructura de cada elemento.',
+		},
+		resta: {
+			title: 'Resta de matrices',
+			description: 'Resta matrices compatibles para mostrar el cambio elemento por elemento.',
+		},
+		multiplicacion: {
+			title: 'Multiplicacion de matrices',
+			description: 'Multiplica matrices segun sus dimensiones y la regla de filas por columnas.',
+		},
+		determinante: {
+			title: 'Determinante',
+			description: 'Calcula el valor determinante de una matriz cuadrada.',
+		},
+		inversa: {
+			title: 'Matriz inversa',
+			description: 'Encuentra la matriz inversa cuando existe y es invertible.',
+		},
+		cramer: {
+			title: 'Regla de Cramer',
+			description: 'Resuelve sistemas lineales usando determinantes.',
+		},
+		gauss: {
+			title: 'Eliminacion de Gauss',
+			description: 'Lleva la matriz a forma escalonada usando operaciones elementales.',
+		},
+		'gauss-jordan': {
+			title: 'Gauss-Jordan Elimination',
+			description: 'Transforma la matriz extendida en forma escalonada reducida para despejar variables con claridad.',
+		},
+	};
+
+	const matrixCellClass = 'h-11 rounded-xl border border-slate-300/70 bg-white/95 px-2 text-center text-sm font-semibold text-slate-900 shadow-[inset_0_1px_1px_rgba(15,23,42,0.05)] outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10';
+	const operationButtonBaseClass = 'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition duration-150 hover:-translate-y-px hover:border-slate-200 hover:bg-white/80 hover:text-slate-900 hover:shadow-[0_10px_22px_rgba(15,23,42,0.06)]';
+	const operationButtonActiveClass = 'border-blue-200 bg-gradient-to-br from-blue-500/10 to-blue-500/5 text-blue-700';
+	const operationButtonInactiveClass = 'border-transparent bg-transparent text-slate-500';
+	const operationIconBaseClass = 'grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xs font-bold';
+	const operationIconActiveClass = 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-[0_12px_24px_rgba(47,73,242,0.22)]';
+	const operationIconInactiveClass = 'border border-slate-200 bg-white/80 text-blue-700';
+
+	const rowsInput = document.querySelector('[data-rows]');
+	const colsInput = document.querySelector('[data-cols]');
+	const generateButton = document.querySelector('[data-generate-matrix]');
+	const matrixGrid = document.querySelector('[data-matrix-grid]');
+	const matrixBadge = document.querySelector('[data-matrix-badge]');
+	const operationTitle = document.querySelector('[data-operation-title]');
+	const operationDescription = document.querySelector('[data-operation-description]');
+	const operationButtons = Array.from(document.querySelectorAll('[data-operation]'));
+
+	const defaultMatrix = [
+		[2, 1, -1, 8],
+		[-3, -1, 2, -11],
+		[-2, 1, 2, -3],
+	];
+
+	const clamp = (value, min, max) => {
+		const parsedValue = Number.parseInt(String(value), 10);
+
+		if (Number.isNaN(parsedValue)) {
+			return min;
+		}
+
+		return Math.min(max, Math.max(min, parsedValue));
+	};
+
+	const renderMatrix = () => {
+		if (!rowsInput || !colsInput || !matrixGrid || !matrixBadge) {
+			return;
+		}
+
+		const rows = clamp(rowsInput.value, 1, 6);
+		const cols = clamp(colsInput.value, 1, 6);
+
+		rowsInput.value = String(rows);
+		colsInput.value = String(cols);
+		matrixBadge.textContent = `${rows} x ${cols} matrix`;
+		matrixGrid.style.setProperty('--matrix-columns', String(cols));
+		matrixGrid.innerHTML = '';
+
+		for (let row = 0; row < rows; row += 1) {
+			for (let column = 0; column < cols; column += 1) {
+				const input = document.createElement('input');
+				input.type = 'number';
+				input.className = matrixCellClass;
+				input.inputMode = 'decimal';
+				input.setAttribute('aria-label', `Fila ${row + 1}, columna ${column + 1}`);
+
+				const defaultValue = defaultMatrix[row]?.[column];
+				input.value = defaultValue !== undefined ? String(defaultValue) : '';
+
+				matrixGrid.appendChild(input);
+			}
+		}
+	};
+
+	const syncOperation = (button) => {
+		const key = button.dataset.operation;
+		const metadata = operations[key];
+
+		if (operationTitle && metadata) {
+			operationTitle.textContent = metadata.title;
+		}
+
+		if (operationDescription && metadata) {
+			operationDescription.textContent = metadata.description;
+		}
+
+		operationButtons.forEach((item) => {
+			const isActive = item === button;
+			item.className = `${operationButtonBaseClass} ${isActive ? operationButtonActiveClass : operationButtonInactiveClass}`;
+			item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+
+			const icon = item.querySelector('[data-operation-icon]');
+			if (icon) {
+				icon.className = `${operationIconBaseClass} ${isActive ? operationIconActiveClass : operationIconInactiveClass}`;
+			}
+		});
+	};
+
+	const activeButton = operationButtons.find((button) => button.classList.contains('is-active'));
+
+	operationButtons.forEach((button) => {
+		button.addEventListener('click', () => syncOperation(button));
+	});
+
+	generateButton?.addEventListener('click', renderMatrix);
+	rowsInput?.addEventListener('input', renderMatrix);
+	colsInput?.addEventListener('input', renderMatrix);
+
+	if (activeButton) {
+		syncOperation(activeButton);
+	}
+
+	renderMatrix();
+</script>

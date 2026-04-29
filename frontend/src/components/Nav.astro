@@ -1,0 +1,103 @@
+
+---
+const operations = [
+  {
+    key: 'suma',
+    short: '+',
+    label: 'Suma',
+    description: 'Combina matrices con la misma dimension.',
+    title: 'Suma de matrices',
+  },
+  {
+    key: 'resta',
+    short: '-',
+    label: 'Resta',
+    description: 'Resta matrices compatibles fila por fila.',
+    title: 'Resta de matrices',
+  },
+  {
+    key: 'multiplicacion',
+    short: 'x',
+    label: 'Multiplicacion',
+    description: 'Multiplica matrices segun sus dimensiones.',
+    title: 'Multiplicacion de matrices',
+  },
+  {
+    key: 'determinante',
+    short: 'det',
+    label: 'Determinante',
+    description: 'Calcula el valor determinante de una matriz cuadrada.',
+    title: 'Determinante',
+  },
+  {
+    key: 'inversa',
+    short: 'inv',
+    label: 'Inversa',
+    description: 'Obtiene la matriz inversa cuando existe.',
+    title: 'Matriz inversa',
+  },
+  {
+    key: 'cramer',
+    short: 'cr',
+    label: 'Cramer',
+    description: 'Resuelve sistemas lineales con la regla de Cramer.',
+    title: 'Regla de Cramer',
+  },
+  {
+    key: 'gauss',
+    short: 'G',
+    label: 'Gauss',
+    description: 'Reduce la matriz a forma escalonada.',
+    title: 'Eliminacion de Gauss',
+  },
+  {
+    key: 'gauss-jordan',
+    short: 'GJ',
+    label: 'Gauss-Jordan',
+    description: 'Lleva la matriz a forma escalonada reducida.',
+    title: 'Gauss-Jordan Elimination',
+  },
+];
+
+const { activeKey = 'gauss-jordan' } = Astro.props;
+---
+
+<aside class="flex h-auto flex-col gap-4 border-b border-slate-200/80 bg-white/80 px-4 py-6 shadow-[inset_-1px_0_0_rgba(255,255,255,0.7)] backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
+  <div class="flex items-center gap-3 border-b border-slate-200/80 pb-4">
+    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-sm font-bold text-white shadow-[0_18px_28px_rgba(47,73,242,0.25)]">M</div>
+    <div>
+      <p class="display-font text-lg font-bold tracking-[-0.02em]">Matrix Solver</p>
+      <p class="mt-0.5 text-sm text-slate-500">Academic tools</p>
+    </div>
+  </div>
+
+  <nav class="flex flex-col gap-2.5" aria-label="Operaciones de matrices">
+    {operations.map((operation) => (
+      <button
+        type="button"
+        class={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition duration-150 hover:-translate-y-px hover:border-slate-200 hover:bg-white/80 hover:text-slate-900 hover:shadow-[0_10px_22px_rgba(15,23,42,0.06)] ${operation.key === activeKey ? 'border-blue-200 bg-gradient-to-br from-blue-500/10 to-blue-500/5 text-blue-700' : 'border-transparent bg-transparent text-slate-500'}`}
+        data-operation={operation.key}
+        data-operation-title={operation.title}
+        data-operation-description={operation.description}
+        aria-pressed={operation.key === activeKey ? 'true' : 'false'}
+      >
+        <span
+          data-operation-icon
+          class={operation.key === activeKey
+            ? 'grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-xs font-bold text-white shadow-[0_12px_24px_rgba(47,73,242,0.22)]'
+            : 'grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white/80 text-xs font-bold text-blue-700'}
+        >
+          {operation.short}
+        </span>
+        <span class="min-w-0">
+          <strong class="block text-sm font-semibold text-inherit">{operation.label}</strong>
+          <span class="mt-1 block text-xs leading-5 text-inherit opacity-80">{operation.description}</span>
+        </span>
+      </button>
+    ))}
+  </nav>
+
+  <p class="mt-auto pt-4 text-sm leading-6 text-slate-500">
+    Diseñado para mostrar una ruta clara: operacion, dimensiones, matriz y resultado.
+  </p>
+</aside>
