@@ -2,8 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
 
-const backendBaseUrl =
-  import.meta.env.PUBLIC_API_URL;
+const backendBaseUrl = import.meta.env.PUBLIC_API_URL;
 
 const operations = [
   {
@@ -134,7 +133,7 @@ const initialOperation = operations[0];
               </h2>
               <p
                 data-dimension-note
-                class="mt-2 text-sm leading-6 text-slate-300"
+                class="mt-2 text-sm leading-6 text-slate-300 max-w-[40ch]"
               >
               </p>
             </div>
@@ -337,11 +336,13 @@ const initialOperation = operations[0];
     const operation = operationMap[operationKey];
     const dimensions = getDimensions(operationKey);
 
-    if (operation.kind === "pair") {
-      return `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
-    }
+    // if (operation.kind === "pair") {
+    //   return `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
+    // } else {
+    //   return `${operation.note}\nMatriz A será ${dimensions.rowsA} x ${dimensions.colsA} y Matriz B será ${dimensions.colsA} x ${dimensions.colsB}.`;
+    // }
 
-    return `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.colsA} x ${dimensions.colsB}.`;
+    return operation.note;
   }
 
   function renderOperationButtons() {
@@ -402,7 +403,7 @@ const initialOperation = operations[0];
 						<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${label}</p>
 						<p class="mt-1 text-sm leading-6 text-slate-400">${helperText}</p>
 					</div>
-					<span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-cyan-200">${rows} x ${cols}</span>
+					<span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-cyan-200">${rows} x ${cols}</span>
 				</div>
 				<div class="mt-4 rounded-[1.2rem] border border-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.08),transparent_24%),radial-gradient(circle_at_82%_8%,rgba(99,102,241,0.12),transparent_28%),linear-gradient(180deg,rgba(15,23,42,0.88),rgba(15,23,42,0.64))] p-4">
 					<div class="grid gap-2" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr));">
@@ -448,7 +449,7 @@ const initialOperation = operations[0];
           dimensions.rows,
           dimensions.cols,
           matrices.a,
-          "Editable y sincronizada con B.",
+          "Sincronizada con B.",
         ),
         renderMatrixCard(
           "Matriz B",
@@ -456,7 +457,7 @@ const initialOperation = operations[0];
           dimensions.rows,
           dimensions.cols,
           matrices.b,
-          "Debe tener la misma forma que A.",
+          "Misma forma que A.",
         ),
       ].join("");
       return;
@@ -470,7 +471,7 @@ const initialOperation = operations[0];
         dimensions.rowsA,
         dimensions.colsA,
         matrices.a,
-        "Las columnas de A definen las filas de B.",
+        "Columnas de A = filas de B.",
       ),
       renderMatrixCard(
         "Matriz B",
@@ -719,30 +720,31 @@ const initialOperation = operations[0];
 
   dimensionControls?.addEventListener("input", (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLInputElement)) {
-      return;
-    }
-
-    if (!target.dataset.dimensionField) {
-      return;
-    }
+    if (!(target instanceof HTMLInputElement)) return;
+    if (!target.dataset.dimensionField) return;
 
     const operation = getActiveOperation();
     const dimensions = getDimensions(operation.key);
-    // DEBUG: log raw input value to diagnose unexpected clamping
-    console.debug(
-      "[dimension-input] field=",
-      target.dataset.dimensionField,
-      "raw=",
-      target.value,
-    );
-    const nextValue = clampInt(target.value, 1, 12);
-    console.debug("[dimension-input] parsed=", nextValue);
-    target.value = String(nextValue);
 
+    const raw = target.value.trim();
+
+    // Permitir cadena vacía para edición móvil (no forzamos min aquí)
+    if (raw === "") {
+      // opcional: mostrar nota temporal
+      if (dimensionNote) dimensionNote.textContent = "Editando dimensiones...";
+      return;
+    }
+
+    // Sanitizar (solo dígitos) y clamp
+    const digits = raw.replace(/[^\d]/g, "");
+    const nextValue = clampInt(digits, 1, 12);
+
+    target.value = String(nextValue);
     dimensions[target.dataset.dimensionField] = nextValue;
+
     syncMatricesToDimensions(operation.key);
-    dimensionNote.textContent = buildDimensionNote(operation.key);
+    if (dimensionNote)
+      dimensionNote.textContent = buildDimensionNote(operation.key);
     renderMatrixGrids();
     renderResultIdle(
       "Las dimensiones cambiaron. Vuelve a calcular para actualizar la respuesta.",
