@@ -1,128 +1,215 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
+import Home from '../components/Home.astro';
 import InputDimension from '../components/inputDimension.astro';
 import MatrizInput from '../components/MatrizInput.astro';
 import Result from '../components/Result.astro';
+import Step from '../components/Step.astro';
 import "../styles/global.css";
 
-const operations = {
-	'suma': {
-		title: 'Suma de matrices',
-		description: 'Combina matrices con la misma dimension y conserva la estructura de cada elemento.',
-	},
-	'resta': {
-		title: 'Resta de matrices',
-		description: 'Resta matrices compatibles para mostrar el cambio elemento por elemento.',
-	},
-	'multiplicacion': {
-		title: 'Multiplicacion de matrices',
-		description: 'Multiplica matrices segun sus dimensiones y la regla de filas por columnas.',
-	},
-	'determinante': {
-		title: 'Determinante',
-		description: 'Calcula el valor determinante de una matriz cuadrada.',
-	},
-	'inversa': {
-		title: 'Matriz inversa',
-		description: 'Encuentra la matriz inversa cuando existe y es invertible.',
-	},
-	'cramer': {
-		title: 'Regla de Cramer',
-		description: 'Resuelve sistemas lineales usando determinantes.',
-	},
-	'gauss': {
-		title: 'Eliminacion de Gauss',
-		description: 'Lleva la matriz a forma escalonada usando operaciones elementales.',
-	},
-	'gauss-jordan': {
-		title: 'Gauss-Jordan Elimination',
-		description: 'Transforma la matriz extendida en forma escalonada reducida para despejar variables con claridad.',
-	},
-};
-
-const activeOperation = operations['gauss-jordan'];
+const defaultOperationTitle = 'Gauss-Jordan Elimination';
+const defaultOperationDescription = 'Transforma la matriz extendida en forma escalonada reducida para despejar variables con claridad.';
+const defaultOperationChip = '1 matriz aumentada';
 ---
 
 <Layout title="Matrix Solver | Algebra Lineal">
-	<Nav slot="aside" activeKey="gauss-jordan" />
+	<Nav slot="aside" activeKey="home" />
 
-	<main slot="main" class="min-w-0 p-4 sm:p-6 lg:p-8">
-		<header class="mb-5 flex flex-col gap-2">
-			<p class="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-blue-700">Matrix Solver</p>
-			<h1 class="display-font max-w-[15ch] text-4xl font-bold tracking-tighter sm:text-5xl" data-operation-title>{activeOperation.title}</h1>
-			<p class="max-w-3xl text-[0.98rem] leading-7 text-slate-500" data-operation-description>
-				{activeOperation.description}
-			</p>
-		</header>
+	<main slot="main" class="relative min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-16 lg:py-10">
+		<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_12%,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_85%_8%,rgba(99,102,241,0.2),transparent_26%),radial-gradient(circle_at_50%_100%,rgba(16,185,129,0.14),transparent_28%)]"></div>
+		<div class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,8,16,0.6),rgba(5,8,16,0.2)_45%,rgba(5,8,16,0.72))]"></div>
 
-		<InputDimension />
+		<div class="relative mx-auto flex max-w-7xl flex-col gap-6">
+			<Home />
 
-		<section class="grid gap-5 xl:grid-cols-[minmax(0,1.02fr)_minmax(320px,0.98fr)]">
-			<MatrizInput />
-			<Result />
-		</section>
+
+			<section data-view="operation" hidden class="grid gap-6">
+				<header class="rounded-4xl border border-white/10 bg-white/5 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] backdrop-blur-2xl">
+					<div class="mt-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+						<div class="max-w-4xl">
+							<h1 data-operation-title class="display-font max-w-[18ch] text-4xl font-bold tracking-tighter text-white sm:text-5xl">{defaultOperationTitle}</h1>
+							<p data-operation-description class="mt-3 max-w-3xl text-base leading-7 text-slate-300">{defaultOperationDescription}</p>
+						</div>
+						<span data-operation-chip class="inline-flex w-fit items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-cyan-200">{defaultOperationChip}</span>
+					</div>
+				</header>
+
+				<InputDimension />
+
+				<section class="grid gap-5 xl:grid-cols-[minmax(0,1.02fr)_minmax(320px,0.98fr)]">
+					<MatrizInput />
+					<div class="grid gap-5">
+						<Result />
+						<Step />
+					</div>
+				</section>
+			</section>
+		</div>
 	</main>
 </Layout>
 
 <script type="module">
 	const operations = {
+		home: {
+			title: 'Matrix Solver',
+			description: 'Pantalla de introduccion y acceso rapido a cada tipo de operacion.',
+			chip: 'Inicio',
+		},
 		suma: {
 			title: 'Suma de matrices',
-			description: 'Combina matrices con la misma dimension y conserva la estructura de cada elemento.',
+			description: 'Combina dos matrices del mismo tamaño.',
+			chip: '2 matrices iguales',
+			configTitle: 'Matrices compatibles',
+			configMessage: 'A y B deben compartir la misma cantidad de filas y columnas.',
+			matrixTitle: 'Ingreso de matrices',
+			matrixMessage: 'La grilla se adaptara al tamaño definido en la configuracion.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'rect', rows: 3, cols: 3, helper: 'Editable.' },
+				{ key: 'b', label: 'Matriz B', kind: 'mirrorRect', source: 'a', helper: 'Usa la misma dimension de A.' },
+			],
+			validate: (dims) => dims.a.rows === dims.b.rows && dims.a.cols === dims.b.cols,
+			validationMessage: (dims) => `Listo. Ambas matrices comparten ${dims.a.rows} filas por ${dims.a.cols} columnas.`,
 		},
 		resta: {
 			title: 'Resta de matrices',
-			description: 'Resta matrices compatibles para mostrar el cambio elemento por elemento.',
+			description: 'Resta dos matrices del mismo tamaño.',
+			chip: '2 matrices iguales',
+			configTitle: 'Matrices compatibles',
+			configMessage: 'La resta comparte la misma restriccion que la suma.',
+			matrixTitle: 'Ingreso de matrices',
+			matrixMessage: 'Ambas matrices deben mantenerse sincronizadas en dimension.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'rect', rows: 3, cols: 3, helper: 'Editable.' },
+				{ key: 'b', label: 'Matriz B', kind: 'mirrorRect', source: 'a', helper: 'Usa la misma dimension de A.' },
+			],
+			validate: (dims) => dims.a.rows === dims.b.rows && dims.a.cols === dims.b.cols,
+			validationMessage: (dims) => `Listo. A y B coinciden en ${dims.a.rows} x ${dims.a.cols}.`,
 		},
 		multiplicacion: {
 			title: 'Multiplicacion de matrices',
-			description: 'Multiplica matrices segun sus dimensiones y la regla de filas por columnas.',
+			description: 'Multiplica matrices compatibles por filas y columnas.',
+			chip: 'A cols = B rows',
+			configTitle: 'Compatibilidad de producto',
+			configMessage: 'Las columnas de A deben coincidir con las filas de B.',
+			matrixTitle: 'Ingreso de matrices',
+			matrixMessage: 'La segunda matriz puede tener una dimension distinta, siempre que sea compatible.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'rect', rows: 2, cols: 3, helper: 'Editable.' },
+				{ key: 'b', label: 'Matriz B', kind: 'rect', rows: 3, cols: 2, helper: 'Editable.' },
+			],
+			validate: (dims) => dims.a.cols === dims.b.rows,
+			validationMessage: (dims) => `Correcto. ${dims.a.cols} columnas en A coinciden con ${dims.b.rows} filas en B.`,
 		},
 		determinante: {
 			title: 'Determinante',
-			description: 'Calcula el valor determinante de una matriz cuadrada.',
+			description: 'Calcula el determinante de una matriz cuadrada.',
+			chip: '1 matriz cuadrada',
+			configTitle: 'Matriz cuadrada',
+			configMessage: 'El determinante solo se define para matrices cuadradas.',
+			matrixTitle: 'Ingreso de matriz',
+			matrixMessage: 'La dimension se bloquea en forma n x n.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'square', size: 3, helper: 'Editable.' },
+			],
+			validate: (dims) => dims.a.rows === dims.a.cols,
+			validationMessage: (dims) => `Matriz cuadrada detectada: ${dims.a.rows} x ${dims.a.cols}.`,
 		},
 		inversa: {
 			title: 'Matriz inversa',
-			description: 'Encuentra la matriz inversa cuando existe y es invertible.',
+			description: 'Encuentra la inversa de una matriz cuadrada cuando existe.',
+			chip: '1 matriz cuadrada',
+			configTitle: 'Matriz cuadrada',
+			configMessage: 'La inversa solo se puede calcular sobre matrices cuadradas.',
+			matrixTitle: 'Ingreso de matriz',
+			matrixMessage: 'La singularidad se validara cuando conectes el algoritmo.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'square', size: 3, helper: 'Editable.' },
+			],
+			validate: (dims) => dims.a.rows === dims.a.cols,
+			validationMessage: (dims) => `Matriz cuadrada detectada: ${dims.a.rows} x ${dims.a.cols}.`,
 		},
 		cramer: {
 			title: 'Regla de Cramer',
-			description: 'Resuelve sistemas lineales usando determinantes.',
+			description: 'Resuelve sistemas lineales con una matriz de coeficientes y un vector de terminos independientes.',
+			chip: 'A cuadrada + b vector',
+			configTitle: 'Sistema compatible',
+			configMessage: 'La matriz de coeficientes debe ser cuadrada y el vector de terminos debe tener una sola columna.',
+			matrixTitle: 'Ingreso de matrices',
+			matrixMessage: 'El vector de terminos independientes hereda las filas de A y se mantiene en una sola columna.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'square', size: 3, helper: 'Editable.' },
+				{ key: 'b', label: 'Vector b', kind: 'mirrorVector', source: 'a', helper: 'Se ajusta a las filas de A.' },
+			],
+			validate: (dims) => dims.a.rows === dims.a.cols && dims.b.rows === dims.a.rows && dims.b.cols === 1,
+			validationMessage: (dims) => `Correcto. A es ${dims.a.rows} x ${dims.a.cols} y b queda como ${dims.b.rows} x 1.`,
 		},
 		gauss: {
 			title: 'Eliminacion de Gauss',
-			description: 'Lleva la matriz a forma escalonada usando operaciones elementales.',
+			description: 'Lleva una matriz aumentada a forma escalonada.',
+			chip: 'Matriz aumentada',
+			configTitle: 'Matriz aumentada',
+			configMessage: 'Para Gauss, la matriz debe tener n filas y n + 1 columnas.',
+			matrixTitle: 'Ingreso de matriz aumentada',
+			matrixMessage: 'El numero de columnas se deriva automaticamente de las filas.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'augmented', rows: 3, helper: 'Editable.' },
+			],
+			validate: (dims) => dims.a.cols === dims.a.rows + 1,
+			validationMessage: (dims) => `Correcto. La matriz aumentada queda en ${dims.a.rows} x ${dims.a.cols}.`,
 		},
 		'gauss-jordan': {
 			title: 'Gauss-Jordan Elimination',
 			description: 'Transforma la matriz extendida en forma escalonada reducida para despejar variables con claridad.',
+			chip: 'Matriz aumentada',
+			configTitle: 'Matriz aumentada',
+			configMessage: 'La matriz aumentada debe seguir la forma n x (n + 1).',
+			matrixTitle: 'Ingreso de matriz aumentada',
+			matrixMessage: 'La vista previa solo se habilita con una estructura consistente.',
+			controls: [
+				{ key: 'a', label: 'Matriz A', kind: 'augmented', rows: 3, helper: 'Editable.' },
+			],
+			validate: (dims) => dims.a.cols === dims.a.rows + 1,
+			validationMessage: (dims) => `Correcto. La matriz aumentada queda en ${dims.a.rows} x ${dims.a.cols}.`,
 		},
 	};
 
-	const matrixCellClass = 'h-11 rounded-xl border border-slate-300/70 bg-white/95 px-2 text-center text-sm font-semibold text-slate-900 shadow-[inset_0_1px_1px_rgba(15,23,42,0.05)] outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10';
-	const operationButtonBaseClass = 'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition duration-150 hover:-translate-y-px hover:border-slate-200 hover:bg-white/80 hover:text-slate-900 hover:shadow-[0_10px_22px_rgba(15,23,42,0.06)]';
-	const operationButtonActiveClass = 'border-blue-200 bg-gradient-to-br from-blue-500/10 to-blue-500/5 text-blue-700';
-	const operationButtonInactiveClass = 'border-transparent bg-transparent text-slate-500';
+	const defaultOperationKey = 'gauss-jordan';
+	const operationButtons = Array.from(document.querySelectorAll('[data-operation]'));
+	const operationButtonBaseClass = 'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition duration-150 hover:-translate-y-px hover:border-white/10 hover:bg-white/10 hover:text-white hover:shadow-[0_10px_22px_rgba(0,0,0,0.22)]';
+	const operationButtonActiveClass = 'border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 to-indigo-500/10 text-white';
+	const operationButtonInactiveClass = 'border-transparent bg-transparent text-slate-400';
 	const operationIconBaseClass = 'grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xs font-bold';
-	const operationIconActiveClass = 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-[0_12px_24px_rgba(47,73,242,0.22)]';
-	const operationIconInactiveClass = 'border border-slate-200 bg-white/80 text-blue-700';
-
-	const rowsInput = document.querySelector('[data-rows]');
-	const colsInput = document.querySelector('[data-cols]');
-	const generateButton = document.querySelector('[data-generate-matrix]');
-	const matrixGrid = document.querySelector('[data-matrix-grid]');
-	const matrixBadge = document.querySelector('[data-matrix-badge]');
+	const operationIconActiveClass = 'bg-gradient-to-br from-cyan-400 to-indigo-600 text-slate-950 shadow-[0_12px_24px_rgba(56,189,248,0.22)]';
+	const operationIconInactiveClass = 'border border-white/10 bg-white/5 text-cyan-200';
+	const homeView = document.querySelector('[data-view="home"]');
+	const operationView = document.querySelector('[data-view="operation"]');
 	const operationTitle = document.querySelector('[data-operation-title]');
 	const operationDescription = document.querySelector('[data-operation-description]');
-	const operationButtons = Array.from(document.querySelectorAll('[data-operation]'));
+	const operationChip = document.querySelector('[data-operation-chip]');
+	const dimensionShell = document.querySelector('[data-dimension-shell]');
+	const dimensionTitle = document.querySelector('[data-operation-config-title]');
+	const dimensionBadge = document.querySelector('[data-operation-badge]');
+	const dimensionMessage = document.querySelector('[data-dimension-message]');
+	const dimensionCards = document.querySelector('[data-dimension-cards]');
+	const applyDimensionsButton = document.querySelector('[data-apply-dimensions]');
+	const matrixShell = document.querySelector('[data-matrix-shell]');
+	const matrixTitle = document.querySelector('[data-matrix-title]');
+	const matrixSummary = document.querySelector('[data-matrix-summary]');
+	const matrixCards = document.querySelector('[data-matrix-cards]');
+	const calculateButton = document.querySelector('[data-calculate-matrices]');
+	const validationChip = document.querySelector('[data-validation-chip]');
+	const validationMessage = document.querySelector('[data-validation-message]');
+	const resultSummary = document.querySelector('[data-result-summary]');
+	const openOperationButton = document.querySelector('[data-open-operation]');
+	const resultShell = document.querySelector('[data-result-shell]');
 
-	const defaultMatrix = [
-		[2, 1, -1, 8],
-		[-3, -1, 2, -11],
-		[-2, 1, 2, -3],
-	];
+	const state = {
+		activeView: 'home',
+		activeOperationKey: defaultOperationKey,
+		dimensions: {},
+		generatedForOperationKey: null,
+	};
 
 	const clamp = (value, min, max) => {
 		const parsedValue = Number.parseInt(String(value), 10);
@@ -134,73 +221,531 @@ const activeOperation = operations['gauss-jordan'];
 		return Math.min(max, Math.max(min, parsedValue));
 	};
 
-	const renderMatrix = () => {
-		if (!rowsInput || !colsInput || !matrixGrid || !matrixBadge) {
+	const buildInitialDimensions = (operationKey) => {
+		const operation = operations[operationKey];
+		const dimensions = {};
+
+		operation.controls.forEach((control) => {
+			if (control.kind === 'rect') {
+				dimensions[control.key] = {
+					rows: control.rows ?? 3,
+					cols: control.cols ?? 3,
+				};
+				return;
+			}
+
+			if (control.kind === 'square') {
+				const size = control.size ?? 3;
+				dimensions[control.key] = {
+					rows: size,
+					cols: size,
+				};
+				return;
+			}
+
+			if (control.kind === 'augmented') {
+				const rows = control.rows ?? 3;
+				dimensions[control.key] = {
+					rows,
+					cols: rows + 1,
+				};
+			}
+		});
+
+		operation.controls.forEach((control) => {
+			if (control.kind === 'mirrorRect' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: dimensions[control.source].cols,
+				};
+			}
+
+			if (control.kind === 'mirrorVector' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: 1,
+				};
+			}
+		});
+
+		return dimensions;
+	};
+
+	const getDimensions = (operationKey) => {
+		if (!state.dimensions[operationKey]) {
+			state.dimensions[operationKey] = buildInitialDimensions(operationKey);
+		}
+
+		return state.dimensions[operationKey];
+	};
+
+	const collectDimensionsFromControls = (operationKey) => {
+		const operation = operations[operationKey];
+		const dimensions = getDimensions(operationKey);
+
+		operation.controls.forEach((control) => {
+			if (control.kind === 'rect') {
+				const rowsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="rows"]`);
+				const colsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="cols"]`);
+
+				dimensions[control.key] = {
+					rows: clamp(rowsInput?.value ?? control.rows ?? 3, 1, 9),
+					cols: clamp(colsInput?.value ?? control.cols ?? 3, 1, 9),
+				};
+				return;
+			}
+
+			if (control.kind === 'square') {
+				const sizeInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="size"]`);
+				const size = clamp(sizeInput?.value ?? control.size ?? 3, 1, 9);
+
+				dimensions[control.key] = {
+					rows: size,
+					cols: size,
+				};
+				return;
+			}
+
+			if (control.kind === 'augmented') {
+				const rowsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="rows"]`);
+				const rows = clamp(rowsInput?.value ?? control.rows ?? 3, 1, 9);
+
+				dimensions[control.key] = {
+					rows,
+					cols: rows + 1,
+				};
+			}
+		});
+
+		operation.controls.forEach((control) => {
+			if (control.kind === 'mirrorRect' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: dimensions[control.source].cols,
+				};
+			}
+
+			if (control.kind === 'mirrorVector' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: 1,
+				};
+			}
+		});
+
+		return dimensions;
+	};
+
+	const renderDimensionControls = (operationKey) => {
+		const operation = operations[operationKey];
+		const dimensions = getDimensions(operationKey);
+
+		if (!dimensionCards) {
 			return;
 		}
 
-		const rows = clamp(rowsInput.value, 1, 6);
-		const cols = clamp(colsInput.value, 1, 6);
+		dimensionCards.className = operation.controls.length > 1 ? 'mt-5 grid gap-4 lg:grid-cols-2' : 'mt-5 grid gap-4';
+		dimensionCards.innerHTML = operation.controls
+			.map((control) => {
+				const current = dimensions[control.key];
 
-		rowsInput.value = String(rows);
-		colsInput.value = String(cols);
-		matrixBadge.textContent = `${rows} x ${cols} matrix`;
-		matrixGrid.style.setProperty('--matrix-columns', String(cols));
-		matrixGrid.innerHTML = '';
+				if (control.kind === 'rect') {
+					return `
+						<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+							<div class="flex items-start justify-between gap-4">
+								<div>
+									<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+									<p class="mt-1 text-sm leading-6 text-slate-400">${control.helper ?? ''}</p>
+								</div>
+								<span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-cyan-200">Editable</span>
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-3">
+								<label class="flex flex-col gap-1.5">
+									<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filas</span>
+									<input data-field="rows" type="number" min="1" max="9" value="${current.rows}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+								</label>
+								<label class="flex flex-col gap-1.5">
+									<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas</span>
+									<input data-field="cols" type="number" min="1" max="9" value="${current.cols}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+								</label>
+							</div>
+						</article>
+					`;
+				}
 
-		for (let row = 0; row < rows; row += 1) {
-			for (let column = 0; column < cols; column += 1) {
-				const input = document.createElement('input');
-				input.type = 'number';
-				input.className = matrixCellClass;
-				input.inputMode = 'decimal';
-				input.setAttribute('aria-label', `Fila ${row + 1}, columna ${column + 1}`);
+				if (control.kind === 'square') {
+					return `
+						<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+							<div class="flex items-start justify-between gap-4">
+								<div>
+									<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+									<p class="mt-1 text-sm leading-6 text-slate-400">${control.helper ?? ''}</p>
+								</div>
+								<span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-cyan-200">${current.rows} x ${current.cols}</span>
+							</div>
+							<div class="mt-4">
+								<label class="flex flex-col gap-1.5">
+									<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Dimension n</span>
+									<input data-field="size" type="number" min="1" max="9" value="${current.rows}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+								</label>
+							</div>
+						</article>
+					`;
+				}
 
-				const defaultValue = defaultMatrix[row]?.[column];
-				input.value = defaultValue !== undefined ? String(defaultValue) : '';
+				if (control.kind === 'augmented') {
+					return `
+						<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+							<div class="flex items-start justify-between gap-4">
+								<div>
+									<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+									<p class="mt-1 text-sm leading-6 text-slate-400">${control.helper ?? ''}</p>
+								</div>
+								<span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-cyan-200">${current.rows} x ${current.cols}</span>
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-3">
+								<label class="flex flex-col gap-1.5">
+									<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filas</span>
+									<input data-field="rows" type="number" min="1" max="9" value="${current.rows}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+								</label>
+								<div class="flex flex-col gap-1.5">
+									<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas</span>
+									<div class="flex h-11 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-cyan-200">n + 1</div>
+								</div>
+							</div>
+						</article>
+					`;
+				}
 
-				matrixGrid.appendChild(input);
-			}
+				if (control.kind === 'mirrorRect') {
+					return `
+						<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+							<div class="flex items-start justify-between gap-4">
+								<div>
+									<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+									<p class="mt-1 text-sm leading-6 text-slate-400">${control.helper ?? ''}</p>
+								</div>
+								<span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-slate-300">Sincronizada</span>
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-3">
+								<div class="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+									<p class="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-slate-500">Filas</p>
+									<p class="mt-1 text-sm font-semibold text-white">${current.rows}</p>
+								</div>
+								<div class="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+									<p class="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-slate-500">Columnas</p>
+									<p class="mt-1 text-sm font-semibold text-white">${current.cols}</p>
+								</div>
+							</div>
+						</article>
+					`;
+				}
+
+				if (control.kind === 'mirrorVector') {
+					return `
+						<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+							<div class="flex items-start justify-between gap-4">
+								<div>
+									<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+									<p class="mt-1 text-sm leading-6 text-slate-400">${control.helper ?? ''}</p>
+								</div>
+								<span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-slate-300">Vector</span>
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-3">
+								<div class="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+									<p class="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-slate-500">Filas</p>
+									<p class="mt-1 text-sm font-semibold text-white">${current.rows}</p>
+								</div>
+								<div class="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+									<p class="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-slate-500">Columnas</p>
+									<p class="mt-1 text-sm font-semibold text-white">1</p>
+								</div>
+							</div>
+						</article>
+					`;
+				}
+
+				return '';
+			})
+			.join('');
+
+		if (!dimensionShell) {
+			return;
+		}
+
+		dimensionShell.hidden = false;
+	};
+
+	const renderMatrixCards = (operationKey, dimensions) => {
+		const operation = operations[operationKey];
+
+		if (!matrixCards) {
+			return;
+		}
+
+		matrixCards.className = operation.controls.length > 1 ? 'grid gap-4 lg:grid-cols-2' : 'grid gap-4';
+		matrixCards.innerHTML = operation.controls
+			.map((control) => {
+				const current = dimensions[control.key];
+				const gridColumns = current.cols;
+				const gridRows = current.rows;
+				const cellCount = gridRows * gridColumns;
+
+				return `
+					<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/60 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.28)]">
+						<div class="flex items-start justify-between gap-4">
+							<div>
+								<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">${control.label}</p>
+								<p class="mt-1 text-sm leading-6 text-slate-400">${operation.matrixMessage}</p>
+							</div>
+							<span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-cyan-200">${gridRows} x ${gridColumns}</span>
+						</div>
+						<div class="mt-4 rounded-[1.2rem] border border-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.08),transparent_24%),radial-gradient(circle_at_82%_8%,rgba(99,102,241,0.12),transparent_28%),linear-gradient(180deg,rgba(15,23,42,0.88),rgba(15,23,42,0.64))] p-4">
+							<div class="grid gap-2" style="grid-template-columns: repeat(${gridColumns}, minmax(0, 1fr));">
+								${Array.from({ length: cellCount })
+									.map(
+										(_, index) => `
+											<input type="number" inputmode="decimal" aria-label="${control.label} fila ${Math.floor(index / gridColumns) + 1}, columna ${(index % gridColumns) + 1}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-2 text-center text-sm font-semibold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+										`,
+									)
+									.join('')}
+							</div>
+						</div>
+					</article>
+				`;
+			})
+			.join('');
+
+		if (!matrixShell) {
+			return;
+		}
+
+		matrixShell.hidden = false;
+		state.generatedForOperationKey = operationKey;
+	};
+
+	const renderResultSummary = (operationKey, dimensions, isValid) => {
+		const operation = operations[operationKey];
+
+		if (!validationChip || !validationMessage || !resultSummary) {
+			return;
+		}
+
+		validationChip.textContent = isValid ? 'Validacion correcta' : 'Restriccion activa';
+		validationChip.className = isValid
+			? 'inline-flex items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-emerald-200'
+			: 'inline-flex items-center justify-center rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-rose-200';
+
+		validationMessage.textContent = isValid
+			? operation.validationMessage(dimensions)
+			: operation.configMessage;
+
+		const summaryItems = operation.controls.map((control) => {
+			const current = dimensions[control.key];
+			return `
+				<li class="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3">
+					<span class="text-slate-400">${control.label}</span>
+					<strong class="text-cyan-200">${current.rows} x ${current.cols}</strong>
+				</li>
+			`;
+		});
+
+		resultSummary.innerHTML = summaryItems.join('');
+
+		if (operationChip) {
+			operationChip.textContent = operation.chip;
+		}
+
+		if (calculateButton) {
+			calculateButton.disabled = !isValid;
+			calculateButton.className = isValid
+					? 'rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_30px_rgba(16,185,129,0.2)] transition hover:-translate-y-px hover:saturate-110 focus:outline-none focus:ring-4 focus:ring-emerald-400/20'
+				: 'rounded-full bg-slate-700 px-5 py-3 text-sm font-semibold text-slate-300 shadow-[0_14px_30px_rgba(0,0,0,0.18)] opacity-70';
 		}
 	};
 
-	const syncOperation = (button) => {
-		const key = button.dataset.operation;
-		const metadata = operations[key];
+	const collectAndNormalizeDimensions = (operationKey) => {
+		const operation = operations[operationKey];
+		const dimensions = {};
 
-		if (operationTitle && metadata) {
-			operationTitle.textContent = metadata.title;
+		operation.controls.forEach((control) => {
+			if (control.kind === 'rect') {
+				const rowsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="rows"]`);
+				const colsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="cols"]`);
+
+				dimensions[control.key] = {
+					rows: clamp(rowsInput?.value ?? control.rows ?? 3, 1, 9),
+					cols: clamp(colsInput?.value ?? control.cols ?? 3, 1, 9),
+				};
+				return;
+			}
+
+			if (control.kind === 'square') {
+				const sizeInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="size"]`);
+				const size = clamp(sizeInput?.value ?? control.size ?? 3, 1, 9);
+
+				dimensions[control.key] = {
+					rows: size,
+					cols: size,
+				};
+				return;
+			}
+
+			if (control.kind === 'augmented') {
+				const rowsInput = dimensionShell?.querySelector(`[data-control-key="${control.key}"] [data-field="rows"]`);
+				const rows = clamp(rowsInput?.value ?? control.rows ?? 3, 1, 9);
+
+				dimensions[control.key] = {
+					rows,
+					cols: rows + 1,
+				};
+				return;
+			}
+		});
+
+		operation.controls.forEach((control) => {
+			if (control.kind === 'mirrorRect' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: dimensions[control.source].cols,
+				};
+			}
+
+			if (control.kind === 'mirrorVector' && control.source) {
+				dimensions[control.key] = {
+					rows: dimensions[control.source].rows,
+					cols: 1,
+				};
+			}
+		});
+
+		return dimensions;
+	};
+
+	const setActiveOperation = (operationKey, options = { renderMatrices: true }) => {
+		if (operationKey === 'home') {
+			state.activeView = 'home';
+			state.activeOperationKey = defaultOperationKey;
+
+			homeView?.removeAttribute('hidden');
+			operationView?.setAttribute('hidden', 'true');
+			operationButtons.forEach((button) => {
+				const isActive = button.dataset.operation === 'home';
+				button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+				button.className = `${operationButtonBaseClass} ${isActive ? operationButtonActiveClass : operationButtonInactiveClass}`;
+
+				const icon = button.querySelector('[data-operation-icon]');
+				if (icon) {
+					icon.className = `${operationIconBaseClass} ${isActive ? operationIconActiveClass : operationIconInactiveClass}`;
+				}
+			});
+			return;
 		}
 
-		if (operationDescription && metadata) {
-			operationDescription.textContent = metadata.description;
+		state.activeView = 'operation';
+		state.activeOperationKey = operationKey;
+		homeView?.setAttribute('hidden', 'true');
+		operationView?.removeAttribute('hidden');
+
+		const operation = operations[operationKey];
+		const dimensions = getDimensions(operationKey);
+
+		if (operationTitle) {
+			operationTitle.textContent = operation.title;
 		}
 
-		operationButtons.forEach((item) => {
-			const isActive = item === button;
-			item.className = `${operationButtonBaseClass} ${isActive ? operationButtonActiveClass : operationButtonInactiveClass}`;
-			item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+		if (operationDescription) {
+			operationDescription.textContent = operation.description;
+		}
 
-			const icon = item.querySelector('[data-operation-icon]');
+		if (operationChip) {
+			operationChip.textContent = operation.chip;
+		}
+
+		if (dimensionTitle) {
+			dimensionTitle.textContent = operation.configTitle;
+		}
+
+		if (dimensionBadge) {
+			dimensionBadge.textContent = operation.chip;
+		}
+
+		if (dimensionMessage) {
+			dimensionMessage.textContent = operation.configMessage;
+		}
+
+		if (matrixTitle) {
+			matrixTitle.textContent = operation.matrixTitle;
+		}
+
+		if (matrixSummary) {
+			matrixSummary.textContent = operation.chip;
+		}
+
+		renderDimensionControls(operationKey);
+		const normalizedDimensions = collectAndNormalizeDimensions(operationKey);
+		state.dimensions[operationKey] = normalizedDimensions;
+		renderResultSummary(operationKey, normalizedDimensions, operation.validate(normalizedDimensions));
+
+		if (options.renderMatrices) {
+			renderMatrixCards(operationKey, normalizedDimensions);
+		}
+
+		operationButtons.forEach((button) => {
+			const isActive = button.dataset.operation === operationKey;
+			button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+			button.className = `${operationButtonBaseClass} ${isActive ? operationButtonActiveClass : operationButtonInactiveClass}`;
+
+			const icon = button.querySelector('[data-operation-icon]');
 			if (icon) {
 				icon.className = `${operationIconBaseClass} ${isActive ? operationIconActiveClass : operationIconInactiveClass}`;
 			}
 		});
 	};
 
-	const activeButton = operationButtons.find((button) => button.classList.contains('is-active'));
+	const refreshOperationState = () => {
+		if (state.activeView !== 'operation') {
+			return;
+		}
+
+		const currentOperationKey = state.activeOperationKey;
+		const normalizedDimensions = collectAndNormalizeDimensions(currentOperationKey);
+		state.dimensions[currentOperationKey] = normalizedDimensions;
+		renderResultSummary(currentOperationKey, normalizedDimensions, operations[currentOperationKey].validate(normalizedDimensions));
+	};
 
 	operationButtons.forEach((button) => {
-		button.addEventListener('click', () => syncOperation(button));
+		button.addEventListener('click', () => setActiveOperation(button.dataset.operation ?? 'home'));
 	});
 
-	generateButton?.addEventListener('click', renderMatrix);
-	rowsInput?.addEventListener('input', renderMatrix);
-	colsInput?.addEventListener('input', renderMatrix);
+	openOperationButton?.addEventListener('click', () => setActiveOperation(defaultOperationKey));
 
-	if (activeButton) {
-		syncOperation(activeButton);
-	}
+	dimensionShell?.addEventListener('change', () => {
+		refreshOperationState();
+	});
 
-	renderMatrix();
+	applyDimensionsButton?.addEventListener('click', () => {
+		const currentOperationKey = state.activeOperationKey;
+		const normalizedDimensions = collectAndNormalizeDimensions(currentOperationKey);
+		state.dimensions[currentOperationKey] = normalizedDimensions;
+		renderMatrixCards(currentOperationKey, normalizedDimensions);
+		renderResultSummary(currentOperationKey, normalizedDimensions, operations[currentOperationKey].validate(normalizedDimensions));
+	});
+
+	calculateButton?.addEventListener('click', () => {
+		const currentOperationKey = state.activeOperationKey;
+		const normalizedDimensions = state.dimensions[currentOperationKey] ?? getDimensions(currentOperationKey);
+		const isValid = operations[currentOperationKey].validate(normalizedDimensions);
+
+		if (!isValid) {
+			return;
+		}
+
+		resultShell?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		if (validationMessage) {
+			validationMessage.textContent = 'La estructura ya es valida. Aqui puedes conectar el backend para resolver la operacion.';
+		}
+	});
+
+	setActiveOperation('home', { renderMatrices: false });
 </script>

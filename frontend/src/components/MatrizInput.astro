@@ -1,24 +1,21 @@
 ---
-const { title = 'Matrix Input Grid' } = Astro.props;
 ---
 
-<section class="flex flex-col gap-4 rounded-3xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_28px_65px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+<section data-matrix-shell class="hidden flex flex-col gap-4 rounded-4xl border border-white/10 bg-white/5 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.32)] backdrop-blur-2xl">
 	<div class="flex items-start justify-between gap-4">
 		<div>
-			<p class="mb-1 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-500">Matrix input grid</p>
-			<h2 class="display-font text-[1.12rem] font-semibold tracking-[-0.03em]">{title}</h2>
+			<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-400">Ingreso</p>
+			<h2 data-matrix-title class="display-font mt-1 text-[1.12rem] font-semibold tracking-tighter text-white">Matrices necesarias</h2>
 		</div>
-		<span class="inline-flex whitespace-nowrap items-center justify-center rounded-full border border-blue-200 bg-blue-500/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-blue-700" data-matrix-badge>3 x 4 matrix</span>
+		<span data-matrix-summary class="inline-flex whitespace-nowrap items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-cyan-200">0 matrices</span>
 	</div>
 
-	<div class="relative overflow-hidden rounded-[1.2rem] border border-slate-200/70 bg-linear-to-b from-slate-50 to-indigo-50/70 px-8 py-6">
-		<span aria-hidden="true" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 select-none text-[clamp(4rem,8vw,5.5rem)] font-light leading-none text-slate-400/35">[</span>
-		<div class="grid gap-2" data-matrix-grid style="grid-template-columns: repeat(var(--matrix-columns, 4), minmax(0, 1fr));"></div>
-		<span aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 select-none text-[clamp(4rem,8vw,5.5rem)] font-light leading-none text-slate-400/35">]</span>
-	</div>
+	<div data-matrix-cards class="grid gap-4"></div>
 
-	<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-		<p class="text-sm leading-6 text-slate-500">Los campos se adaptan al tamano configurado arriba.</p>
-		<button type="button" class="h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 font-semibold text-white shadow-[0_12px_22px_rgba(47,143,87,0.2)] transition hover:-translate-y-px hover:saturate-110 focus:-translate-y-px focus:outline-none focus:ring-4 focus:ring-emerald-500/20">Calcular</button>
+	<div class="flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
+		<p class="text-sm leading-6 text-slate-400">Las grillas se renderizan solo cuando la estructura cumple la restriccion de la operacion.</p>
+		<button data-calculate-matrices type="button" class="rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_30px_rgba(16,185,129,0.2)] transition hover:-translate-y-px hover:saturate-110 focus:outline-none focus:ring-4 focus:ring-emerald-400/20">
+			Calcular
+		</button>
 	</div>
 </section>

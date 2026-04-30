@@ -1,0 +1,56 @@
+---
+const highlights = [
+  {
+    title: "Suma y resta",
+    description:
+      "Controla dimensiones antes de habilitar la grilla de entrada.",
+  },
+  {
+    title: "Gauss y Gauss-Jordan",
+    description: "Trabaja con matrices aumentadas y validaciones estrictas.",
+  },
+  {
+    title: "Determinante e inversa",
+    description: "Bloquea entradas no cuadradas y guía el flujo del usuario.",
+  },
+  {
+    title: "Regla de Cramer",
+    description:
+      "Verifica sistemas compatibles antes de mostrar las grillas de coeficientes y resultados.",
+  },
+  {
+    title: "multiplicacion",
+    description:
+      "Valida dimensiones internas para asegurar que la multiplicacion sea posible.",
+  },
+];
+---
+
+<section data-view="home" class="grid gap-6">
+  <div class="relative overflow-hidden rounded-4xl p-6 sm:p-8">
+    <div class="relative flex flex-col">
+      <div class="max-w-full">
+        <h2
+          class="display-font my-5 text-4xl font-bold tracking-tighter text-white sm:text-6xl lg:text-7xl"
+        >
+          Una Forma Clara de Resolver Matrices.
+        </h2>
+        <p
+          class="mt-5 max-w-2xl leading-7 text-slate-300/90 text-lg sm:text-xl"
+        >
+          Explora operaciones de algebra lineal
+        </p>
+      </div>
+
+      <div class="flex flex-row flex-wrap items-center mt-8 gap-4">
+        {
+          highlights.map((highlight) => (
+            <article class="px-3 py-2 bg-slate-950/50 rounded-2xl border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-2xl ">
+              <p class="text-sm font-semibold text-white">{highlight.title}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

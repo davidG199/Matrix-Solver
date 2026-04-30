@@ -1,29 +1,21 @@
 ---
-const { rows = 3, cols = 4 } = Astro.props;
 ---
 
-<section class="mb-5 rounded-3xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_28px_65px_rgba(15,23,42,0.12)] backdrop-blur-xl">
-	<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+<section data-dimension-shell class="hidden rounded-4xl border border-white/10 bg-white/5 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.32)] backdrop-blur-2xl">
+	<div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
 		<div>
-			<p class="mb-1 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-slate-500">Dimension configurator</p>
-			<h2 class="display-font text-[1.12rem] font-semibold tracking-[-0.03em]">Define el tamano de tu matriz</h2>
+			<p class="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-cyan-200">Configuracion</p>
+			<h2 data-operation-config-title class="display-font mt-1 text-[1.12rem] font-semibold tracking-tighter text-white">Dimensiones de matrices</h2>
 		</div>
-		<p class="max-w-[27ch] text-sm leading-6 text-slate-500">Ingresa las filas y columnas antes de generar el grid de valores.</p>
+		<span data-operation-badge class="inline-flex w-fit items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-cyan-200">Validacion automatica</span>
 	</div>
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-[repeat(2,minmax(0,1fr))_auto] md:items-end">
-		<label class="flex flex-col gap-1.5" for="matrix-rows">
-			<span class="text-sm font-semibold text-slate-500">Rows (n)</span>
-			<input id="matrix-rows" class="h-11 rounded-xl border border-slate-300/70 bg-white/95 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(15,23,42,0.05)] outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" data-rows type="number" min="1" max="6" value={rows} />
-		</label>
+	<div data-dimension-cards class="mt-5 grid gap-4 lg:grid-cols-2"></div>
 
-		<label class="flex flex-col gap-1.5" for="matrix-cols">
-			<span class="text-sm font-semibold text-slate-500">Columns (m)</span>
-			<input id="matrix-cols" class="h-11 rounded-xl border border-slate-300/70 bg-white/95 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(15,23,42,0.05)] outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" data-cols type="number" min="1" max="6" value={cols} />
-		</label>
-
-		<button type="button" class="h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 px-4 font-semibold text-white shadow-[0_12px_26px_rgba(47,73,242,0.24)] transition hover:-translate-y-px hover:saturate-110 focus:-translate-y-px focus:outline-none focus:ring-4 focus:ring-blue-500/20" data-generate-matrix>
-			Generar Matriz
+	<div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+		<p data-dimension-message class="text-sm leading-6 text-slate-300">Selecciona una operacion para ver sus restricciones.</p>
+		<button data-apply-dimensions type="button" class="rounded-full bg-linear-to-r from-cyan-400 to-indigo-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_30px_rgba(34,211,238,0.22)] transition hover:-translate-y-px hover:saturate-110 focus:outline-none focus:ring-4 focus:ring-cyan-400/20">
+			Generar matrices
 		</button>
 	</div>
 </section>
