@@ -12,9 +12,9 @@ const operations = [
     description: "Combina dos matrices con la misma dimension.",
     chip: "Matriz A = Matriz B",
     endpoint: "/matrices/suma",
-    kind: "pair",
+    kind: "flexible-pair",
     note: "Las matrices A y B deben compartir filas y columnas.",
-    defaultDimensions: { rows: 3, cols: 3 },
+    defaultDimensions: { rowsA: 3, colsA: 3, rowsB: 3, colsB: 3 },
   },
   {
     key: "resta",
@@ -23,9 +23,9 @@ const operations = [
     description: "Resta matrices de la misma forma.",
     chip: "Matriz A = Matriz B",
     endpoint: "/matrices/resta",
-    kind: "pair",
+    kind: "flexible-pair",
     note: "La resta exige que A y B tengan exactamente las mismas dimensiones.",
-    defaultDimensions: { rows: 3, cols: 3 },
+    defaultDimensions: { rowsA: 3, colsA: 3, rowsB: 3, colsB: 3 },
   },
   {
     key: "multiplicacion",
@@ -256,6 +256,14 @@ const initialOperation = operations[0];
       };
     }
 
+    if (operation.kind === "flexible-pair") {
+      const dims = operation.defaultDimensions;
+      return {
+        a: createMatrix(dims.rowsA, dims.colsA),
+        b: createMatrix(dims.rowsB, dims.colsB),
+      };
+    }
+
     const { rowsA, colsA, colsB } = operation.defaultDimensions;
     return {
       a: createMatrix(rowsA, colsA),
@@ -326,6 +334,14 @@ const initialOperation = operations[0];
       return;
     }
 
+    if (operation.kind === "flexible-pair") {
+      state.matrices[operationKey] = {
+        a: resizeMatrix(currentMatrices.a, dimensions.rowsA, dimensions.colsA),
+        b: resizeMatrix(currentMatrices.b, dimensions.rowsB, dimensions.colsB),
+      };
+      return;
+    }
+
     state.matrices[operationKey] = {
       a: resizeMatrix(currentMatrices.a, dimensions.rowsA, dimensions.colsA),
       b: resizeMatrix(currentMatrices.b, dimensions.colsA, dimensions.colsB),
@@ -336,13 +352,15 @@ const initialOperation = operations[0];
     const operation = operationMap[operationKey];
     const dimensions = getDimensions(operationKey);
 
-    // if (operation.kind === "pair") {
-    //   return `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
-    // } else {
-    //   return `${operation.note}\nMatriz A será ${dimensions.rowsA} x ${dimensions.colsA} y Matriz B será ${dimensions.colsA} x ${dimensions.colsB}.`;
-    // }
+    if (operation.kind === "pair") {
+      return `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
+    }
 
-    return operation.note;
+    if (operation.kind === "flexible-pair") {
+      return `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.rowsB} x ${dimensions.colsB}.`;
+    }
+
+    return `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.colsA} x ${dimensions.colsB}.`;
   }
 
   function renderOperationButtons() {
@@ -372,6 +390,40 @@ const initialOperation = operations[0];
 						<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas</span>
                         <input data-dimension-field="cols" type="number" min="1" max="12" value="${dimensions.cols}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
 					</label>
+				</div>
+			`;
+      return;
+    }
+
+    if (operation.kind === "flexible-pair") {
+      dimensionControls.innerHTML = `
+				<div class="space-y-4 flex flex-row flex-wrap lg:justify-between justify-center">
+					<div>
+						<p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 text-center">Matriz A</p>
+						<div class="flex flex-row gap-4">
+							<label class="flex flex-col gap-2">
+								<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filas A</span>
+								<input data-dimension-field="rowsA" type="number" min="1" max="12" value="${dimensions.rowsA}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+							</label>
+							<label class="flex flex-col gap-2">
+								<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas A</span>
+								<input data-dimension-field="colsA" type="number" min="1" max="12" value="${dimensions.colsA}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+							</label>
+						</div>
+					</div>
+					<div>
+						<p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 text-center">Matriz B</p>
+						<div class="flex flex-row gap-4">
+							<label class="flex flex-col gap-2">
+								<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filas B</span>
+								<input data-dimension-field="rowsB" type="number" min="1" max="12" value="${dimensions.rowsB}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+							</label>
+							<label class="flex flex-col gap-2">
+								<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas B</span>
+								<input data-dimension-field="colsB" type="number" min="1" max="12" value="${dimensions.colsB}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+							</label>
+						</div>
+					</div>
 				</div>
 			`;
       return;
@@ -463,6 +515,29 @@ const initialOperation = operations[0];
       return;
     }
 
+    if (operation.kind === "flexible-pair") {
+      matrixGrids.className = "mt-5 grid gap-5 lg:grid-cols-2";
+      matrixGrids.innerHTML = [
+        renderMatrixCard(
+          "Matriz A",
+          "a",
+          dimensions.rowsA,
+          dimensions.colsA,
+          matrices.a,
+          "Independiente de B.",
+        ),
+        renderMatrixCard(
+          "Matriz B",
+          "b",
+          dimensions.rowsB,
+          dimensions.colsB,
+          matrices.b,
+          "Independiente de A.",
+        ),
+      ].join("");
+      return;
+    }
+
     matrixGrids.className = "mt-5 grid gap-5 lg:grid-cols-2";
     matrixGrids.innerHTML = [
       renderMatrixCard(
@@ -518,7 +593,12 @@ const initialOperation = operations[0];
     }
 
     if (resultMatrix) {
-      resultMatrix.innerHTML = "";
+      resultMatrix.innerHTML = `
+        <div class="rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4">
+          <p class="text-sm font-semibold text-rose-100">No hay resultado</p>
+          <p class="mt-2 text-sm leading-6 text-rose-100/80">${escapeHtml(message)}</p>
+        </div>
+      `;
     }
 
     if (resultJson) {
@@ -630,12 +710,45 @@ const initialOperation = operations[0];
     );
   }
 
+  function getMatrixShape(matrix) {
+    const rows = matrix.length;
+    const cols = rows > 0 ? matrix[0].length : 0;
+    return { rows, cols };
+  }
+
+  function validateOperationDimensions(operation, matrixA, matrixB) {
+    const shapeA = getMatrixShape(matrixA);
+    const shapeB = getMatrixShape(matrixB);
+
+    if (operation.key === "suma" || operation.key === "resta") {
+      if (shapeA.rows !== shapeB.rows || shapeA.cols !== shapeB.cols) {
+        throw new Error(
+          `${operation.label}: A y B deben tener la misma dimensión. A es ${shapeA.rows}x${shapeA.cols} y B es ${shapeB.rows}x${shapeB.cols}.`,
+        );
+      }
+    }
+
+    if (operation.key === "multiplicacion") {
+      if (shapeA.cols !== shapeB.rows) {
+        throw new Error(
+          `Multiplicación: columnas de A (${shapeA.cols}) debe ser igual a filas de B (${shapeB.rows}).`,
+        );
+      }
+    }
+  }
+
   function buildRequestPayload(operationKey) {
+    const operation = operationMap[operationKey];
     const matrices = state.matrices[operationKey];
 
+    const matrixA = readMatrix(matrices.a, "Matriz A");
+    const matrixB = readMatrix(matrices.b, "Matriz B");
+
+    validateOperationDimensions(operation, matrixA, matrixB);
+
     return {
-      matrix_a: readMatrix(matrices.a, "Matriz A"),
-      matrix_b: readMatrix(matrices.b, "Matriz B"),
+      matrix_a: matrixA,
+      matrix_b: matrixB,
     };
   }
 
@@ -664,7 +777,17 @@ const initialOperation = operations[0];
 
   async function calculateCurrentOperation() {
     const operation = getActiveOperation();
-    const payload = buildRequestPayload(operation.key);
+    if (!backendBaseUrl) {
+      renderResultError(
+        "No se configuró la URL del servidor. Revisa PUBLIC_API_URL antes de calcular.",
+      );
+      if (validationMessage) {
+        validationMessage.textContent =
+          "Falta la configuración del backend, por eso no se puede generar resultado.";
+      }
+      return;
+    }
+
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
@@ -672,6 +795,8 @@ const initialOperation = operations[0];
     renderResultIdle(`Enviando datos a ${operation.endpoint}...`);
 
     try {
+      const payload = buildRequestPayload(operation.key);
+
       const response = await fetch(`${backendBaseUrl}${operation.endpoint}`, {
         method: "POST",
         headers: {
@@ -680,7 +805,6 @@ const initialOperation = operations[0];
         body: JSON.stringify(payload),
         signal: controller.signal,
       });
-      console.log(response);
 
       const responseData = await response.json().catch(() => ({}));
 
@@ -697,10 +821,20 @@ const initialOperation = operations[0];
         validationMessage.textContent = "Cálculo completado correctamente.";
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "No se pudo conectar con el backend.";
+      let errorMessage = "No se pudo conectar con el backend.";
+
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          errorMessage =
+            "El servidor tardó demasiado en responder. No se generó resultado.";
+        } else if (error.message.includes("Failed to fetch")) {
+          errorMessage =
+            "No se pudo cargar el servidor. Verifica que la API esté activa y accesible.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       renderResultError(errorMessage);
       if (validationMessage) {
         validationMessage.textContent = errorMessage;
