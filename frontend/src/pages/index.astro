@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
 
 const backendBaseUrl =
-  import.meta.env.PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+  import.meta.env.PUBLIC_API_URL;
 
 const operations = [
   {
@@ -679,6 +679,7 @@ const initialOperation = operations[0];
         body: JSON.stringify(payload),
         signal: controller.signal,
       });
+      console.log(response);
 
       const responseData = await response.json().catch(() => ({}));
 
