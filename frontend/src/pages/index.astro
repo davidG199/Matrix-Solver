@@ -1,44 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
+import operations from "../data/operations.json";
 
-const backendBaseUrl = import.meta.env.PUBLIC_API_URL;
-
-const operations = [
-  {
-    key: "suma",
-    label: "Suma",
-    title: "Suma de matrices",
-    description: "Combina dos matrices con la misma dimension.",
-    chip: "Matriz A = Matriz B",
-    endpoint: "/matrices/suma",
-    kind: "flexible-pair",
-    note: "Las matrices A y B deben compartir filas y columnas.",
-    defaultDimensions: { rowsA: 3, colsA: 3, rowsB: 3, colsB: 3 },
-  },
-  {
-    key: "resta",
-    label: "Resta",
-    title: "Resta de matrices",
-    description: "Resta matrices de la misma forma.",
-    chip: "Matriz A = Matriz B",
-    endpoint: "/matrices/resta",
-    kind: "flexible-pair",
-    note: "La resta exige que A y B tengan exactamente las mismas dimensiones.",
-    defaultDimensions: { rowsA: 3, colsA: 3, rowsB: 3, colsB: 3 },
-  },
-  {
-    key: "multiplicacion",
-    label: "Multiplicación",
-    title: "Multiplicación de matrices",
-    description: "Multiplica matrices compatibles.",
-    chip: "Matriz A columnas = Matriz B filas",
-    endpoint: "/matrices/multiplicacion",
-    kind: "product",
-    note: "Las columnas de A se sincronizan con las filas de B.",
-    defaultDimensions: { rowsA: 2, colsA: 3, colsB: 2 },
-  },
-];
+const backendBaseUrl = import.meta.env.DEVELOP_API_URL;
 
 const initialOperation = operations[0];
 ---
@@ -63,7 +28,7 @@ const initialOperation = operations[0];
             type="button"
             data-operation-button
             data-operation-key={operation.key}
-            class={`flex items-start justify-between  border px-4 py-3 transition duration-200 ${index === 0 ? " text-white shadow-[0_12px_30px_rgba(0,0,0,0.2)]" : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/10"}`}
+            class={`flex items-start justify-between  border px-4 py-3 transition duration-200 cursor-pointer ${index === 0 ? " text-white shadow-[0_12px_30px_rgba(0,0,0,0.2)]" : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/10"}`}
             aria-pressed={index === 0 ? "true" : "false"}
           >
             <span>
@@ -82,12 +47,12 @@ const initialOperation = operations[0];
     class="relative min-h-screen overflow-hidden px-4 py-5 sm:px-6 lg:px-10 lg:py-10"
   >
     <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_12%,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_85%_8%,rgba(99,102,241,0.2),transparent_26%),radial-gradient(circle_at_50%_100%,rgba(16,185,129,0.14),transparent_28%)]"
+      class="absolute inset-0 bg-[radial-gradient(circle_at_14%_12%,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_85%_8%,rgba(99,102,241,0.2),transparent_26%),radial-gradient(circle_at_50%_100%,rgba(16,185,129,0.14),transparent_28%)]"
     >
     </div>
 
     <div
-      class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,8,16,0.62),rgba(5,8,16,0.24)_42%,rgba(5,8,16,0.72))]"
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,8,16,0.62),rgba(5,8,16,0.24)_42%,rgba(5,8,16,0.72))]"
     >
     </div>
 
@@ -140,7 +105,7 @@ const initialOperation = operations[0];
             <button
               data-reset-button
               type="button"
-              class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-white/20 hover:bg-white/10"
+              class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-white/20 hover:bg-white/10 cursor-pointer"
             >
               Restablecer operación
             </button>
@@ -150,13 +115,11 @@ const initialOperation = operations[0];
 
           <div data-matrix-grids class="mt-5 grid gap-5"></div>
 
-          <div
-            class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-          >
+          <div class="mt-6 gap-3 text-center">
             <button
               data-calculate-button
               type="button"
-              class="rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_30px_rgba(16,185,129,0.2)] transition hover:-translate-y-px hover:saturate-110 focus:outline-none focus:ring-4 focus:ring-emerald-400/20"
+              class="rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_30px_rgba(16,185,129,0.2)] transition hover:-translate-y-px hover:saturate-110 focus:outline-none focus:ring-4 focus:ring-emerald-400/20 cursor-pointer disabled:pointer-events-none disabled:opacity-50"
             >
               Calcular en backend
             </button>
@@ -173,6 +136,8 @@ const initialOperation = operations[0];
                   Respuesta
                 </p>
               </div>
+
+              <div data-dimension-matrix class="text-[0.72rem]"></div>
             </div>
 
             <div
@@ -196,7 +161,7 @@ const initialOperation = operations[0];
   const operationMap = Object.fromEntries(
     operations.map((operation) => [operation.key, operation]),
   );
-  const defaultOperationKey = operations[0]?.key ?? "suma";
+  const defaultOperationKey = operations[0]?.key ?? "determinante";
 
   const operationButtons = Array.from(
     document.querySelectorAll("[data-operation-button]"),
@@ -209,13 +174,12 @@ const initialOperation = operations[0];
   const dimensionNote = document.querySelector("[data-dimension-note]");
   const dimensionControls = document.querySelector("[data-dimension-controls]");
   const matrixGrids = document.querySelector("[data-matrix-grids]");
-  const validationMessage = document.querySelector("[data-validation-message]");
   const calculateButton = document.querySelector("[data-calculate-button]");
   const resetButton = document.querySelector("[data-reset-button]");
-  const resultChip = document.querySelector("[data-result-chip]");
   const resultMessage = document.querySelector("[data-result-message]");
   const resultMatrix = document.querySelector("[data-result-matrix]");
   const resultJson = document.querySelector("[data-result-json]");
+  const resultDimension = document.querySelector("[data-dimension-matrix]");
 
   const operationButtonBaseClass =
     "flex items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition duration-200";
@@ -248,11 +212,12 @@ const initialOperation = operations[0];
   }
 
   function createInitialMatrices(operation) {
-    if (operation.kind === "pair") {
-      const { rows, cols } = operation.defaultDimensions;
+    if (operation.kind === "product") {
+      const { rowsA, colsA, colsB } = operation.defaultDimensions;
       return {
-        a: createMatrix(rows, cols),
-        b: createMatrix(rows, cols),
+        a: createMatrix(rowsA, colsA),
+        //filas de B = columnas de A
+        b: createMatrix(colsA, colsB),
       };
     }
 
@@ -261,6 +226,14 @@ const initialOperation = operations[0];
       return {
         a: createMatrix(dims.rowsA, dims.colsA),
         b: createMatrix(dims.rowsB, dims.colsB),
+      };
+    }
+
+    if (operation.kind === "single") {
+      const { rowsA, colsA } = operation.defaultDimensions;
+      return {
+        a: createMatrix(rowsA, colsA),
+        b: [], // no se usa
       };
     }
 
@@ -320,16 +293,17 @@ const initialOperation = operations[0];
     return state.dimensions[operationKey];
   }
 
+  // funcion para sincronizar las matrices con las dimensiones cada vez que el usuario cambia las dimensiones, para evitar que haya matrices con dimensiones diferentes a las especificadas por el usuario, esta funcion se llama cada vez que el usuario cambia las dimensiones o cambia de operacion, y redimensiona las matrices segun las nuevas dimensiones, manteniendo los valores que ya estaban en las celdas que siguen existiendo despues del cambio de dimensiones
   function syncMatricesToDimensions(operationKey) {
     const operation = operationMap[operationKey];
     const dimensions = getDimensions(operationKey);
     const currentMatrices =
       state.matrices[operationKey] ?? createInitialMatrices(operation);
 
-    if (operation.kind === "pair") {
+    if (operation.kind === "product") {
       state.matrices[operationKey] = {
-        a: resizeMatrix(currentMatrices.a, dimensions.rows, dimensions.cols),
-        b: resizeMatrix(currentMatrices.b, dimensions.rows, dimensions.cols),
+        a: resizeMatrix(currentMatrices.a, dimensions.rowsA, dimensions.colsA),
+        b: resizeMatrix(currentMatrices.b, dimensions.colsA, dimensions.colsB),
       };
       return;
     }
@@ -352,15 +326,18 @@ const initialOperation = operations[0];
     const operation = operationMap[operationKey];
     const dimensions = getDimensions(operationKey);
 
-    if (operation.kind === "pair") {
-      return `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
+    if (operation.kind === "product") {
+      // let str = `${operation.note} A y B usarán ${dimensions.rows} x ${dimensions.cols}.`;
+      return `${operation.note}`;
     }
 
     if (operation.kind === "flexible-pair") {
-      return `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.rowsB} x ${dimensions.colsB}.`;
+      // let str = `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.rowsB} x ${dimensions.colsB}.`;
+      return `${operation.note}`;
     }
 
-    return `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.colsA} x ${dimensions.colsB}.`;
+    // let str = `${operation.note} A será ${dimensions.rowsA} x ${dimensions.colsA} y B será ${dimensions.colsA} x ${dimensions.colsB}.`
+    return `${operation.note}`;
   }
 
   function renderOperationButtons() {
@@ -379,22 +356,24 @@ const initialOperation = operations[0];
       return;
     }
 
-    if (operation.kind === "pair") {
+    // para operaciones de una sola matriz
+    if (operation.kind === "single") {
       dimensionControls.innerHTML = `
 				<div class="grid gap-4 sm:grid-cols-2">
 					<label class="flex flex-col gap-2">
 						<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filas</span>
-                    <input data-dimension-field="rows" type="number" min="1" max="12" value="${dimensions.rows}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+                    <input data-dimension-field="rowsA" type="number" min="1" max="12" value="${dimensions.rowsA}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
 					</label>
 					<label class="flex flex-col gap-2">
 						<span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Columnas</span>
-                        <input data-dimension-field="cols" type="number" min="1" max="12" value="${dimensions.cols}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
+                        <input data-dimension-field="colsA" type="number" min="1" max="12" value="${dimensions.colsA}" class="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-slate-100 outline-none transition focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-400/10" />
 					</label>
 				</div>
 			`;
       return;
     }
 
+    // suma y resta
     if (operation.kind === "flexible-pair") {
       dimensionControls.innerHTML = `
 				<div class="space-y-4 flex flex-row flex-wrap lg:justify-between justify-center">
@@ -429,6 +408,8 @@ const initialOperation = operations[0];
       return;
     }
 
+    // multiplicacion, las dos matrices deben estar sincronizadas numeros de columnas de a = numero de filas de b
+
     dimensionControls.innerHTML = `
 			<div class="grid gap-4 sm:grid-cols-3">
 				<label class="flex flex-col gap-2">
@@ -447,6 +428,7 @@ const initialOperation = operations[0];
 		`;
   }
 
+  //funcion para construir las cards de las matrices, recibe el label, la key para identificar la matriz, las filas, columnas, los valores y un texto de ayuda para mostrar debajo del label de cada card
   function renderMatrixCard(label, matrixKey, rows, cols, values, helperText) {
     return `
 			<article class="rounded-[1.6rem] border border-white/10 bg-slate-950/60 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
@@ -483,6 +465,7 @@ const initialOperation = operations[0];
 		`;
   }
 
+  //funcion para construir las cards de las matrices segun la operacion escogida por el usuario
   function renderMatrixGrids() {
     const operation = getActiveOperation();
     const dimensions = getDimensions(operation.key);
@@ -492,22 +475,23 @@ const initialOperation = operations[0];
       return;
     }
 
-    if (operation.kind === "pair") {
-      matrixGrids.className = "mt-5 grid gap-5 lg:grid-cols-2";
+    // si la operacion es de producto
+    if (operation.kind === "product") {
+      matrixGrids.className = "mt-5 grid gap-5 md:grid-cols-2";
       matrixGrids.innerHTML = [
         renderMatrixCard(
           "Matriz A",
           "a",
-          dimensions.rows,
-          dimensions.cols,
+          dimensions.rowsA,
+          dimensions.colsA,
           matrices.a,
           "Sincronizada con B.",
         ),
         renderMatrixCard(
           "Matriz B",
           "b",
-          dimensions.rows,
-          dimensions.cols,
+          dimensions.colsA,
+          dimensions.colsB,
           matrices.b,
           "Misma forma que A.",
         ),
@@ -515,8 +499,9 @@ const initialOperation = operations[0];
       return;
     }
 
+    // si es flexible pair
     if (operation.kind === "flexible-pair") {
-      matrixGrids.className = "mt-5 grid gap-5 lg:grid-cols-2";
+      matrixGrids.className = "mt-5 grid gap-5 md:grid-cols-2";
       matrixGrids.innerHTML = [
         renderMatrixCard(
           "Matriz A",
@@ -535,6 +520,19 @@ const initialOperation = operations[0];
           "Independiente de A.",
         ),
       ].join("");
+      return;
+    }
+
+    if (operation.kind === "single") {
+      matrixGrids.className = "mt-5";
+      matrixGrids.innerHTML = renderMatrixCard(
+        "Matriz A",
+        "a",
+        dimensions.rowsA,
+        dimensions.colsA,
+        matrices.a,
+        "Única matriz de la operación.",
+      );
       return;
     }
 
@@ -560,14 +558,8 @@ const initialOperation = operations[0];
   }
 
   function renderResultIdle(message) {
-    if (resultChip) {
-      resultChip.textContent = "Esperando";
-      resultChip.className =
-        "inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-slate-300";
-    }
-
-    if (resultMessage) {
-      resultMessage.textContent = message;
+    if (resultDimension) {
+      resultDimension.textContent = "";
     }
 
     if (resultMatrix) {
@@ -581,60 +573,54 @@ const initialOperation = operations[0];
     }
   }
 
-  function renderResultError(message) {
-    if (resultChip) {
-      resultChip.textContent = "Error";
-      resultChip.className =
-        "inline-flex items-center justify-center rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-rose-200";
-    }
-
-    if (resultMessage) {
-      resultMessage.textContent = message;
-    }
+  function renderResultSuccess(operation, responseData) {
+    const result = responseData?.result;
 
     if (resultMatrix) {
-      resultMatrix.innerHTML = `
-        <div class="rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4">
-          <p class="text-sm font-semibold text-rose-100">No hay resultado</p>
-          <p class="mt-2 text-sm leading-6 text-rose-100/80">${escapeHtml(message)}</p>
+      if (operation.key === "determinante") {
+        const numericResult = Number(result);
+
+        if (Number.isFinite(numericResult)) {
+          resultMatrix.innerHTML = `
+          <div class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-2 text-center">
+            <p class="mt-2 text-xl font-bold text-white">${escapeHtml(formatNumber(numericResult))}</p>
+            ${responseData?.method ? `<p class="mt-2 text-sm text-slate-300">Método: ${escapeHtml(responseData.method)}</p>` : ""}
+          </div>
+        `;
+        } else {
+          resultMatrix.innerHTML =
+            '<div class="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-4 text-sm text-slate-400">El backend respondió, pero el determinante no es un número válido.</div>';
+        }
+      } else if (
+        Array.isArray(result) &&
+        result.length > 0 &&
+        Array.isArray(result[0])
+      ) {
+        const cols = result[0].length;
+        resultMatrix.innerHTML = `
+        <div class="grid gap-2" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr));">
+          ${result.map((row) => row.map((cell) => `<div class="grid h-11 place-items-center rounded-xl border border-white/10 bg-white/5 px-2 text-center text-sm font-semibold text-white">${escapeHtml(formatNumber(Number(cell)))}</div>`).join("")).join("")}
         </div>
       `;
-    }
-
-    if (resultJson) {
-      resultJson.hidden = true;
-      resultJson.textContent = "";
-    }
-  }
-
-  function renderResultSuccess(operation, responseData) {
-    const matrix = responseData?.result;
-
-    if (resultChip) {
-      resultChip.textContent = "Correcto";
-      resultChip.className =
-        "inline-flex items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-emerald-200";
-    }
-
-    if (resultMessage) {
-      resultMessage.textContent = `Respuesta recibida desde ${operation.endpoint}.`;
-    }
-
-    if (resultMatrix) {
-      if (
-        Array.isArray(matrix) &&
-        matrix.length > 0 &&
-        Array.isArray(matrix[0])
-      ) {
-        const cols = matrix[0].length;
-        resultMatrix.innerHTML = `
-					<div class="grid gap-2" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr));">
-						${matrix.map((row) => row.map((cell) => `<div class="grid h-11 place-items-center rounded-xl border border-white/10 bg-white/5 px-2 text-center text-sm font-semibold text-white">${escapeHtml(formatNumber(Number(cell)))}</div>`).join("")).join("")}
-					</div>
-				`;
       } else {
         resultMatrix.innerHTML =
           '<div class="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-4 text-sm text-slate-400">El backend respondió, pero no devolvió una matriz válida.</div>';
+      }
+    }
+
+    if (resultDimension) {
+      if (
+        Array.isArray(result) &&
+        result.length > 0 &&
+        Array.isArray(result[0])
+      ) {
+        resultDimension.innerHTML = `
+        <span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-cyan-200">
+          ${result.length} x ${result[0].length}
+          </span>
+          `;
+      } else {
+        resultDimension.textContent = "";
       }
     }
 
@@ -663,13 +649,8 @@ const initialOperation = operations[0];
       dimensionNote.textContent = buildDimensionNote(operation.key);
     }
 
-    if (validationMessage) {
-      validationMessage.textContent =
-        "Completa las matrices y pulsa calcular para enviar la petición al backend.";
-    }
-
     if (calculateButton) {
-      calculateButton.textContent = `Calcular ${operation.label.toLowerCase()}`;
+      calculateButton.textContent = `Calcular `;
       calculateButton.disabled = state.loading;
     }
   }
@@ -742,8 +723,14 @@ const initialOperation = operations[0];
     const matrices = state.matrices[operationKey];
 
     const matrixA = readMatrix(matrices.a, "Matriz A");
-    const matrixB = readMatrix(matrices.b, "Matriz B");
 
+    if (operation.kind === "single") {
+      //validamos cuadrada antes de enviar
+      validateOperationDimensions(operation, matrixA, []);
+      return { matrix: matrixA };
+    }
+
+    const matrixB = readMatrix(matrices.b, "Matriz B");
     validateOperationDimensions(operation, matrixA, matrixB);
 
     return {
@@ -781,10 +768,6 @@ const initialOperation = operations[0];
       renderResultError(
         "No se configuró la URL del servidor. Revisa PUBLIC_API_URL antes de calcular.",
       );
-      if (validationMessage) {
-        validationMessage.textContent =
-          "Falta la configuración del backend, por eso no se puede generar resultado.";
-      }
       return;
     }
 
@@ -808,6 +791,8 @@ const initialOperation = operations[0];
 
       const responseData = await response.json().catch(() => ({}));
 
+      console.log(responseData);
+
       if (!response.ok) {
         const errorMessage =
           responseData?.detail ??
@@ -817,9 +802,6 @@ const initialOperation = operations[0];
       }
 
       renderResultSuccess(operation, responseData);
-      if (validationMessage) {
-        validationMessage.textContent = "Cálculo completado correctamente.";
-      }
     } catch (error) {
       let errorMessage = "No se pudo conectar con el backend.";
 
@@ -836,9 +818,6 @@ const initialOperation = operations[0];
       }
 
       renderResultError(errorMessage);
-      if (validationMessage) {
-        validationMessage.textContent = errorMessage;
-      }
     } finally {
       window.clearTimeout(timeoutId);
       setLoading(false);
@@ -864,7 +843,7 @@ const initialOperation = operations[0];
 
     // Permitir cadena vacía para edición móvil (no forzamos min aquí)
     if (raw === "") {
-      // opcional: mostrar nota temporal
+      //  mostrar nota temporal
       if (dimensionNote) dimensionNote.textContent = "Editando dimensiones...";
       return;
     }
@@ -872,9 +851,24 @@ const initialOperation = operations[0];
     // Sanitizar (solo dígitos) y clamp
     const digits = raw.replace(/[^\d]/g, "");
     const nextValue = clampInt(digits, 1, 12);
-
     target.value = String(nextValue);
+
     dimensions[target.dataset.dimensionField] = nextValue;
+
+    if (
+      operation.kind === "single" &&
+      (target.dataset.dimensionField === "rowsA" ||
+        target.dataset.dimensionField === "colsA")
+    ) {
+      dimensions.rowsA = nextValue;
+      dimensions.colsA = nextValue;
+      const otherField =
+        target.dataset.dimensionField === "rowsA" ? "colsA" : "rowsA";
+      const otherInput = dimensionControls.querySelector(
+        `[data-dimension-field="${otherField}"]`,
+      );
+      if (otherInput) otherInput.value = String(nextValue);
+    }
 
     syncMatricesToDimensions(operation.key);
     if (dimensionNote)

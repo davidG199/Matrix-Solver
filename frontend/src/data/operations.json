@@ -1,0 +1,58 @@
+[
+    {
+      "key": "suma",
+      "label": "Suma",
+      "title": "Suma de matrices",
+      "description": "Combina dos matrices con la misma dimension.",
+      "chip": "Matriz A = Matriz B",
+      "endpoint": "/matrices/suma",
+      "kind": "flexible-pair",
+      "note": "Las matrices A y B deben compartir filas y columnas.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3, "rowsB": 3, "colsB": 3 }
+    },
+    {
+      "key": "resta",
+      "label": "Resta",
+      "title": "Resta de matrices",
+      "description": "Resta matrices de la misma dimension.",
+      "chip": "Matriz A = Matriz B",
+      "endpoint": "/matrices/resta",
+      "kind": "flexible-pair",
+      "note": "Las matrices A y B deben compartir filas y columnas",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3, "rowsB": 3, "colsB": 3 }
+    },
+    {
+      "key": "multiplicacion",
+      "label": "Multiplicación",
+      "title": "Multiplicación de matrices",
+      "description": "Multiplica matrices compatibles.",
+      "chip": "columnas matriz A  = filas Matriz B ",
+      "endpoint": "/matrices/multiplicacion",
+      "kind": "product",
+      "note": "Las columnas de A se sincronizan con las filas de B.",
+      "defaultDimensions": { "rowsA": 2, "colsA": 3, "colsB": 2 }
+    },
+     {
+      "key": "determinante",
+      "label": "Determinante",
+      "title": "Determinante de una matriz",
+      "description": "Calcula el determinante de una matriz cuadrada.",
+      "chip": "Matriz A = Det(A)",
+      "endpoint": "/matrices/determinante",
+      "kind": "single",
+      "note": "El determinante solo se define para matrices cuadradas n x n.",    
+      "defaultDimensions": { "rowsA": 3, "colsA": 3 }
+    },
+    {
+      "key": "inversa",
+      "label": "Inversa",
+      "title": "Inversa de una matriz",
+      "description": "Calcula la inversa de una matriz cuadrada.",
+      "chip": "Matriz A = Matriz A^-1",
+      "endpoint": "/matrices/inversa",
+      "kind": "single",
+      "note": "Solo se pueden invertir matrices cuadradas no singulares.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3 }
+    }
+   
+]
