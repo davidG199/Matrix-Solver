@@ -10,35 +10,36 @@ from typing import Any
 
 import numpy as np
 
+# Un umbral para tratar residuos numéricos como ceros exactos.
 EPSILON = 1e-10
 
 
-def _is_numeric(value: Any) -> bool:
-    """Return whether a value is a real numeric scalar.
+"""Determina si un valor es un escalar numérico real.
 
     Args:
-        value: Any candidate value that should be inspected.
+        value: Cualquier valor candidato que debe ser inspeccionado.
 
     Returns:
-        True when the value is an int, float or numpy numeric type, excluding
-        booleans.
-    """
+        True cuando el valor es un int, float o tipo numérico de numpy, excluyendo
+        booleanos.
+"""
+def _is_numeric(value: Any) -> bool:
     return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
 
-def _coerce_number(value: Any, context: str) -> float:
-    """Convert a value to float after validating that it is numeric.
+"""Convierte un valor a float después de validar que es numérico.
 
-    Args:
-        value: The value to convert.
-        context: Human readable label used in validation errors.
+Args:
+    value: El valor a convertir.
+    context: Etiqueta legible para humanos usada en mensajes de error.
 
     Returns:
-        The numeric value converted to float.
+        El valor numérico convertido a float.
 
     Raises:
-        ValueError: If the value is not numeric or is not finite.
+        ValueError: Si el valor no es numérico o no es finito.
     """
+def _coerce_number(value: Any, context: str) -> float:
     if not _is_numeric(value):
         raise ValueError(f"{context} debe contener solo numeros reales.")
 
@@ -48,32 +49,32 @@ def _coerce_number(value: Any, context: str) -> float:
     return number
 
 
-def normalize_matrix(matrix: Any, name: str = "matriz") -> np.ndarray:
-    """Normalize a matrix-like input into a 2D numpy array of floats.
+"""Normaliza una entrada similar a una matriz en un array de numpy 2D de floats.
 
     Args:
-        matrix: Nested lists or an existing numpy array.
-        name: Label used in validation errors to identify the input.
+        matrix: Listas anidadas o un array de numpy existente.
+        name: Etiqueta usada en mensajes de error para identificar la entrada.
 
     Returns:
-        A rectangular 2D ndarray with dtype float.
+        Un ndarray rectangular 2D con dtype float.
 
     Raises:
-        ValueError: If the input is empty, jagged, non numeric or not 2D.
+        ValueError: Si la entrada está vacía, es irregular, no es numérica o no es 2D.
 
-    Process:
-        1. Accept numpy arrays directly when they are already 2D.
-        2. Accept nested lists/tuples as matrix rows.
-        3. Validate every row length and every scalar value.
-        4. Convert the data to a float array ready for algebraic operations.
-    """
-    if isinstance(matrix, np.ndarray):
-        data = np.asarray(matrix, dtype=float)
-        if data.ndim != 2:
+    Proceso:
+        1. Acepta arrays de numpy directamente cuando ya son 2D.
+        2. Acepta listas/tuplas anidadas como filas de la matriz.
+        3. Valida la longitud de cada fila y cada valor escalar.
+        4. Convierte los datos a un array de float listo para operaciones algebraicas.
+"""
+def normalize_matrix(matrix: Any, name: str = "matriz") -> np.ndarray:
+    if isinstance(matrix, np.ndarray): # Acepta arrays de numpy directamente si ya son 2D.
+        data = np.asarray(matrix, dtype=float) # Convierte a float si es necesario.
+        if data.ndim != 2: # Requiere que el array de numpy sea bidimensional.
             raise ValueError(f"{name} debe ser bidimensional.")
-        if data.size == 0 or 0 in data.shape:
+        if data.size == 0 or 0 in data.shape: # Rechaza matrices vacías o con filas/columnas vacías.
             raise ValueError(f"{name} no puede estar vacia.")
-        if not np.all(np.isfinite(data)):
+        if not np.all(np.isfinite(data)): # Rechaza valores no finitos como NaN o Inf.
             raise ValueError(f"{name} contiene valores no finitos.")
         return data
 
@@ -98,24 +99,24 @@ def normalize_matrix(matrix: Any, name: str = "matriz") -> np.ndarray:
     data = np.asarray(rows, dtype=float)
     if data.ndim != 2 or data.size == 0:
         raise ValueError(f"{name} debe ser una matriz valida.")
-    return data
+    return data # retorna la matriz normalizada como un array de numpy 2D de floats.
 
 
-def normalize_vector(vector: Any, expected_size: int | None = None, name: str = "vector") -> np.ndarray:
-    """Normalize a vector-like input into a 1D numpy array of floats.
+"""Normaliza una entrada similar a un vector en un array de numpy 1D de floats.
 
     Args:
-        vector: A list, tuple, numpy array or a column/row vector equivalent.
-        expected_size: Optional exact length that the vector must satisfy.
-        name: Label used in validation errors to identify the input.
+        vector: Una lista, tupla, array de numpy o equivalente a vector columna/fila.
+        expected_size: Longitud exacta opcional que el vector debe satisfacer.
+        name: Etiqueta usada en mensajes de error para identificar la entrada.
 
     Returns:
-        A 1D ndarray with dtype float.
+        Un ndarray 1D con dtype float.
 
     Raises:
-        ValueError: If the input is empty, nested in an invalid way or has the
-            wrong size.
-    """
+        ValueError: Si la entrada está vacía, anidada de forma inválida o tiene
+            el tamaño incorrecto.
+"""
+def normalize_vector(vector: Any, expected_size: int | None = None, name: str = "vector") -> np.ndarray:
     if isinstance(vector, np.ndarray):
         data = np.asarray(vector, dtype=float)
     else:
@@ -145,130 +146,130 @@ def normalize_vector(vector: Any, expected_size: int | None = None, name: str = 
     return data.astype(float)
 
 
-def require_same_shape(matrix_a: np.ndarray, matrix_b: np.ndarray, operation: str) -> None:
-    """Ensure that two matrices share the same shape.
+"""Asegura que dos matrices compartan la misma forma.
 
     Args:
-        matrix_a: First matrix to compare.
-        matrix_b: Second matrix to compare.
-        operation: Name of the algebraic operation that requires equality.
+        matrix_a: Primera matriz a comparar.
+        matrix_b: Segunda matriz a comparar.
+        operation: Nombre de la operación algebraica que requiere igualdad.
 
     Raises:
-        ValueError: If both matrices do not have the same dimensions.
-    """
+        ValueError: Si ambas matrices no tienen las mismas dimensiones.
+"""
+def require_same_shape(matrix_a: np.ndarray, matrix_b: np.ndarray, operation: str) -> None:
     if matrix_a.shape != matrix_b.shape:
         raise ValueError(f"Las matrices deben tener la misma dimension para {operation}.")
 
 
-def require_multiplicable(matrix_a: np.ndarray, matrix_b: np.ndarray) -> None:
-    """Validate the dimension rule for matrix multiplication.
+"""Valida la regla de dimensiones para multiplicación de matrices.
 
     Args:
-        matrix_a: Left matrix.
-        matrix_b: Right matrix.
+        matrix_a: Matriz izquierda.
+        matrix_b: Matriz derecha.
 
     Raises:
-        ValueError: If the number of columns of A does not match the number of
-        rows of B.
-    """
+        ValueError: Si el número de columnas de A no coincide con el número de
+        filas de B.
+"""
+def require_multiplicable(matrix_a: np.ndarray, matrix_b: np.ndarray) -> None:
     if matrix_a.shape[1] != matrix_b.shape[0]:
         raise ValueError("No se pueden multiplicar: las columnas de A deben coincidir con las filas de B.")
 
 
-def require_square(matrix: np.ndarray, name: str = "matriz") -> None:
-    """Ensure that a matrix is square.
+"""Asegura que una matriz es cuadrada.
 
     Args:
-        matrix: Matrix to validate.
-        name: Label used in validation errors.
+        matrix: Matriz a validar.
+        name: Etiqueta usada en mensajes de error.
 
     Raises:
-        ValueError: If the matrix is not n x n.
+        ValueError: Si la matriz no es n x n.
     """
+def require_square(matrix: np.ndarray, name: str = "matriz") -> None:
     if matrix.shape[0] != matrix.shape[1]:
         raise ValueError(f"{name} debe ser cuadrada.")
 
 
-def clean_matrix(matrix: np.ndarray) -> np.ndarray:
-    """Replace tiny floating-point residues with exact zeros.
+"""Reemplaza residuos flotantes minúsculos con ceros exactos.
 
     Args:
-        matrix: Matrix to clean after a numerical operation.
+        matrix: Matriz a limpiar después de una operación numérica.
 
     Returns:
-        A copied matrix where values with absolute value lower than EPSILON are
-        set to zero.
-    """
+        Una copia de la matriz donde valores con valor absoluto menor que EPSILON
+        se establecen en cero.
+ """
+def clean_matrix(matrix: np.ndarray) -> np.ndarray:
     data = np.asarray(matrix, dtype=float).copy()
     data[np.abs(data) < EPSILON] = 0.0
     return data
 
 
-def matrix_to_list(matrix: np.ndarray) -> list[list[float]]:
-    """Convert a matrix to a JSON-friendly list of lists.
+"""Convierte una matriz a una lista de listas compatible con JSON.
 
     Args:
-        matrix: Numeric matrix to serialize.
+        matrix: Matriz numérica a serializar.
 
     Returns:
-        A nested list representation of the matrix.
-    """
+        Una representación de lista anidada de la matriz.
+"""
+def matrix_to_list(matrix: np.ndarray) -> list[list[float]]:
     return clean_matrix(matrix).tolist()
 
 
-def vector_to_list(vector: np.ndarray) -> list[float]:
-    """Convert a vector to a JSON-friendly flat list.
+"""Convierte un vector a una lista plana compatible con JSON.
 
     Args:
-        vector: Numeric vector to serialize.
+        vector: Vector numérico a serializar.
 
     Returns:
-        A plain Python list of floats.
+        Una lista de Python simple de floats.
     """
+def vector_to_list(vector: np.ndarray) -> list[float]:
     return clean_matrix(np.asarray(vector, dtype=float).reshape(-1)).tolist()
 
 
-def build_augmented_matrix(matrix_a: np.ndarray, vector_b: np.ndarray) -> np.ndarray:
-    """Build the augmented matrix [A | b].
+"""Construye la matriz aumentada [A | b].
 
     Args:
-        matrix_a: Coefficient matrix.
-        vector_b: Independent term vector.
+        matrix_a: Matriz de coeficientes.
+        vector_b: Vector de término independiente.
 
     Returns:
-        The augmented matrix obtained by appending b as the last column.
+        La matriz aumentada obtenida añadiendo b como la última columna.
     """
+def build_augmented_matrix(matrix_a: np.ndarray, vector_b: np.ndarray) -> np.ndarray:
     return np.hstack([matrix_a, vector_b.reshape(-1, 1)])
 
 
-def matrix_rank(matrix: np.ndarray) -> int:
-    """Compute the linear algebra rank of a matrix.
+"""Calcula el rango de álgebra lineal de una matriz.
 
     Args:
-        matrix: Numeric matrix whose rank will be computed.
+        matrix: Matriz numérica cuyo rango será calculado.
 
     Returns:
-        The rank as an integer.
+        El rango como un entero.
     """
+def matrix_rank(matrix: np.ndarray) -> int:
     return int(np.linalg.matrix_rank(np.asarray(matrix, dtype=float)))
 
 
-def classify_system(matrix_a: np.ndarray, vector_b: np.ndarray) -> tuple[str, int, int, np.ndarray]:
-    """Classify a linear system using the ranks of A and [A | b].
+"""Clasifica un sistema lineal usando los rangos de A y [A | b].
 
     Args:
-        matrix_a: Coefficient matrix.
-        vector_b: Independent term vector.
+        matrix_a: Matriz de coeficientes.
+        vector_b: Vector de término independiente.
 
     Returns:
-        A tuple containing the status, rank of A, rank of the augmented matrix
-        and the augmented matrix itself.
+        Una tupla conteniendo el estado, rango de A, rango de la matriz aumentada
+        y la matriz aumentada en sí.
 
-    Status values:
-        incompatible: no solution.
-        compatible_determinado: unique solution.
-        compatible_indeterminado: infinitely many solutions.
+    Valores de estado:
+        incompatible: sin solución.
+        compatible_determinado: solución única.
+        compatible_indeterminado: infinitas soluciones.
     """
+def classify_system(matrix_a: np.ndarray, vector_b: np.ndarray) -> tuple[str, int, int, np.ndarray]:
     augmented = build_augmented_matrix(matrix_a, vector_b)
     rank_a = matrix_rank(matrix_a)
     rank_augmented = matrix_rank(augmented)
@@ -283,27 +284,27 @@ def classify_system(matrix_a: np.ndarray, vector_b: np.ndarray) -> tuple[str, in
     return status, rank_a, rank_augmented, augmented
 
 
-def _row_reduce(matrix: np.ndarray, reduce_above: bool, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
-    """Reduce a matrix using Gaussian elimination with partial pivoting.
+"""Reduce una matriz usando eliminación de Gauss con pivoteo parcial.
 
     Args:
-        matrix: Matrix to reduce.
-        reduce_above: When True, also eliminate entries above each pivot to
-            produce reduced row echelon form.
-        pivot_columns: Optional limit for the number of columns to inspect as
-            pivots.
+        matrix: Matriz a reducir.
+        reduce_above: Cuando es True, también elimina entradas arriba de cada pivote
+            para producir forma escalonada reducida.
+        pivot_columns: Límite opcional para el número de columnas a inspeccionar como
+            pivotes.
 
     Returns:
-        A tuple with the reduced matrix and the list of pivot columns found.
+        Una tupla con la matriz reducida y la lista de columnas pivote encontradas.
 
-    Process:
-        1. Search the best pivot in the current column using the largest
-           absolute value available.
-        2. Swap rows when necessary so the pivot is placed on the active row.
-        3. Normalize the pivot row so the pivot becomes 1.
-        4. Eliminate values below the pivot.
-        5. If requested, eliminate values above the pivot as well.
+    Proceso:
+        1. Busca el mejor pivote en la columna actual usando el valor absoluto más
+           grande disponible.
+        2. Intercambia filas cuando es necesario para colocar el pivote en la fila activa.
+        3. Normaliza la fila pivote para que el pivote sea 1.
+        4. Elimina valores debajo del pivote.
+        5. Si se solicita, también elimina valores arriba del pivote.
     """
+def _row_reduce(matrix: np.ndarray, reduce_above: bool, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
     work = np.asarray(matrix, dtype=float).copy()
     rows, cols = work.shape
     pivot_row = 0
@@ -314,27 +315,27 @@ def _row_reduce(matrix: np.ndarray, reduce_above: bool, pivot_columns: int | Non
         if pivot_row >= rows:
             break
 
-        # Select the strongest available pivot in the current column.
+        # Selecciona el pivote más fuerte disponible en la columna actual.
         pivot_index = pivot_row + int(np.argmax(np.abs(work[pivot_row:, pivot_col])))
         pivot_value = work[pivot_index, pivot_col]
         if abs(pivot_value) < EPSILON:
             continue
 
-        # Move the pivot row into position when another row has the best pivot.
+        # Mueve la fila pivote a su posición cuando otra fila tiene el mejor pivote.
         if pivot_index != pivot_row:
             work[[pivot_row, pivot_index]] = work[[pivot_index, pivot_row]]
 
-        # Normalize the pivot row so the pivot becomes 1.
+        # Normaliza la fila pivote para que el pivote sea 1.
         pivot_value = work[pivot_row, pivot_col]
         work[pivot_row] = work[pivot_row] / pivot_value
 
-        # Eliminate every entry below the pivot.
+        # Elimina cada entrada debajo del pivote.
         for row in range(pivot_row + 1, rows):
             factor = work[row, pivot_col]
             if abs(factor) > EPSILON:
                 work[row] = work[row] - factor * work[pivot_row]
 
-        # For reduced row echelon form, clear the entries above the pivot too.
+        # Para forma escalonada reducida, también limpia las entradas arriba del pivote.
         if reduce_above:
             for row in range(pivot_row):
                 factor = work[row, pivot_col]
@@ -347,42 +348,41 @@ def _row_reduce(matrix: np.ndarray, reduce_above: bool, pivot_columns: int | Non
     return clean_matrix(work), pivot_columns_found
 
 
-def row_echelon_form(matrix: np.ndarray, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
-    """Return the row echelon form of a matrix.
+"""Devuelve la forma escalonada por filas de una matriz.
 
     Args:
-        matrix: Matrix to reduce.
-        pivot_columns: Optional limit for pivot search.
+        matrix: Matriz a reducir.
+        pivot_columns: Límite opcional para la búsqueda de pivotes.
 
     Returns:
-        The echelon form and the list of pivot columns found.
+        La forma escalonada y la lista de columnas pivote encontradas.
     """
+def row_echelon_form(matrix: np.ndarray, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
     return _row_reduce(matrix, reduce_above=False, pivot_columns=pivot_columns)
 
-
-def reduced_row_echelon_form(matrix: np.ndarray, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
-    """Return the reduced row echelon form of a matrix.
+"""Devuelve la forma escalonada reducida por filas de una matriz.
 
     Args:
-        matrix: Matrix to reduce.
-        pivot_columns: Optional limit for pivot search.
+        matrix: Matriz a reducir.
+        pivot_columns: Límite opcional para la búsqueda de pivotes.
 
     Returns:
-        The reduced echelon form and the list of pivot columns found.
+        La forma escalonada reducida y la lista de columnas pivote encontradas.
     """
+def reduced_row_echelon_form(matrix: np.ndarray, pivot_columns: int | None = None) -> tuple[np.ndarray, list[int]]:
     return _row_reduce(matrix, reduce_above=True, pivot_columns=pivot_columns)
 
 
-def extract_solution_from_rref(reduced_matrix: np.ndarray, variable_count: int) -> np.ndarray:
-    """Extract a solution vector from a reduced augmented matrix.
+"""Extrae la solución de un sistema ya en forma escalonada reducida.
 
     Args:
-        reduced_matrix: Augmented matrix already in reduced row echelon form.
-        variable_count: Number of variables in the linear system.
+        reduced_matrix: Matriz aumentada ya en forma escalonada reducida.
+        variable_count: Número de variables en el sistema lineal.
 
     Returns:
-        A vector with the solution values ordered by variable index.
+        Un vector con los valores de solución ordenados por índice de variable.
     """
+def extract_solution_from_rref(reduced_matrix: np.ndarray, variable_count: int) -> np.ndarray:
     solution = np.zeros(variable_count, dtype=float)
 
     for row in range(reduced_matrix.shape[0]):

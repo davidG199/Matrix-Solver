@@ -1,7 +1,7 @@
-"""Legacy console prototype.
+"""Prototipo de consola heredado.
 
-The reusable algebra logic now lives in backend/logic.py and backend/utils.py.
-Use backend/main.py to consume the FastAPI endpoints.
+La lógica de álgebra reutilizable ahora vive en backend/logic.py y backend/utils.py.
+Usa backend/main.py para consumir los endpoints de FastAPI.
 """
 
 if __name__ == "__main__":

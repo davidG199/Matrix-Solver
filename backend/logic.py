@@ -20,78 +20,82 @@ from utils import (
 )
 
 
-def sum_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
-	"""Validate two matrices and return their sum.
+"""Valida dos matrices y devuelve su suma.
 
 	Args:
-		matrix_a: Left matrix input.
-		matrix_b: Right matrix input.
+		matrix_a: Entrada de la matriz izquierda.
+		matrix_b: Entrada de la matriz derecha.
 
 	Returns:
-		A dictionary with the operation name and the resulting matrix.
+		Un diccionario con el nombre de la operación y la matriz resultante.
 
 	Raises:
-		ValueError: If the matrices are not numeric or do not share the same
-		shape.
+		ValueError: Si las matrices no son numéricas o no comparten la misma
+		forma.
 
-	Process:
-		1. Normalize both matrices into float arrays.
-		2. Validate that both shapes are identical.
-		3. Add element by element.
-		4. Convert the result to a JSON-friendly list.
-	"""
+	Proceso:
+		1. Normaliza ambas matrices en arrays de float.
+		2. Valida que ambas formas sean idénticas.
+		3. Suma elemento por elemento.
+		4. Convierte el resultado a una lista amigable con JSON.
+"""
+def sum_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
 	left = normalize_matrix(matrix_a, "matriz A")
 	right = normalize_matrix(matrix_b, "matriz B")
 	require_same_shape(left, right, "suma")
+	# La suma de matrices es una operación directa que se puede realizar con el operador + en numpy.
+	# se agarra la primera matriz normalizada y se le suma la segunda matriz normalizada, pero primero se validan que tengan la misma forma
 	return {"operation": "suma", "result": matrix_to_list(left + right)}
 
 
-def subtract_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
-	"""Validate two matrices and return their difference.
+"""Valida dos matrices y devuelve su diferencia.
 
 	Args:
-		matrix_a: Minuend matrix.
-		matrix_b: Subtrahend matrix.
+		matrix_a: Matriz minuendo.
+		matrix_b: Matriz sustraendo.
 
 	Returns:
-		A dictionary with the operation name and the resulting matrix.
+		Un diccionario con el nombre de la operación y la matriz resultante.
 
 	Raises:
-		ValueError: If the matrices are not numeric or do not share the same
-		shape.
+		ValueError: Si las matrices no son numéricas o no comparten la misma
+		forma.
 
 	Process:
-		1. Normalize both matrices.
-		2. Confirm that the dimensions match.
-		3. Subtract element by element.
-		4. Serialize the result for API responses.
-	"""
+		1. Normaliza ambas matrices.
+		2. Confirma que las dimensiones sean iguales.
+		3. Resta elemento por elemento de cada matriz.
+		4. Serializa el resultado para las respuestas de la API.
+"""
+def subtract_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
 	left = normalize_matrix(matrix_a, "matriz A")
 	right = normalize_matrix(matrix_b, "matriz B")
 	require_same_shape(left, right, "resta")
+	# La resta de matrices es una operación directa que se puede realizar con el operador - en numpy.
+	# se agarra la primera matriz normalizada y se le resta la segunda matriz normalizada
 	return {"operation": "resta", "result": matrix_to_list(left - right)}
 
 
-def multiply_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
-	"""Validate two matrices and return their product.
+"""Valida dos matrices y devuelve su producto.
 
 	Args:
-		matrix_a: Left matrix.
-		matrix_b: Right matrix.
+		matrix_a: Matriz izquierda.
+		matrix_b: Matriz derecha.
 
 	Returns:
-		A dictionary with the operation name and the product matrix.
+		Un diccionario con el nombre de la operación y la matriz producto.
 
 	Raises:
-		ValueError: If the matrices cannot be multiplied under the rule
-		columns(A) = rows(B).
+		ValueError: Si las matrices no pueden ser multiplicadas bajo la regla
+		columnas(A) = filas(B).
 
-	Process:
-		1. Normalize both matrices.
-		2. Validate dimension compatibility.
-		3. Multiply using numpy.matmul.
-		4. Convert the result to lists.
-	"""
+	Proceso:
+		1. Normaliza ambas matrices.
+		2. Valida compatibilidad de dimensiones.
+		3. Multiplica usando numpy.matmul.
+		4. Convierte el resultado a listas.
+"""
+def multiply_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
 	left = normalize_matrix(matrix_a, "matriz A")
 	right = normalize_matrix(matrix_b, "matriz B")
 	require_multiplicable(left, right)
@@ -99,53 +103,56 @@ def multiply_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
 
 
 def transpose_matrix(matrix: Any) -> Dict[str, Any]:
-	"""Return the transpose of a validated matrix.
+	"""Devuelve la traspuesta de una matriz validada.
 
 	Args:
-		matrix: Matrix to transpose.
+		matrix: Matriz a trasponerion.
 
 	Returns:
-		A dictionary with the operation name and the transposed matrix.
+		Un diccionario con el nombre de la operación y la matriz traspuesta.
 
-	Process:
-		1. Normalize the matrix.
-		2. Swap rows and columns with the transpose operator.
-		3. Serialize the result for the API.
+	Proceso:
+		1. Normaliza la matriz.
+		2. Intercambia filas y columnas con el operador traspuesta.
+		3. Serializa el resultado para la API.
 	"""
 	value = normalize_matrix(matrix, "matriz")
 	return {"operation": "traspuesta", "result": matrix_to_list(value.T)}
 
 
-def determinant(matrix: Any) -> Dict[str, Any]:
-	"""Compute the determinant using the method that fits the matrix size.
+"""Calcula el determinante usando el método que se ajusta al tamaño de la matriz.
 
 	Args:
-		matrix: Square matrix whose determinant will be calculated.
+		matrix: Matriz cuadrada cuyo determinante será calculado.
 
 	Returns:
-		A dictionary with the operation name, the method used and the scalar
-		determinant value.
+		Un diccionario con el nombre de la operación, el método utilizado y el
+		valor escalar del determinante.
 
 	Raises:
-		ValueError: If the matrix is not square.
+		ValueError: Si la matriz no es cuadrada.
 
-	Process:
-		1. Normalize and validate the matrix.
-		2. Use direct formulas for 1x1 and 2x2 matrices.
-		3. Use Sarrus for 3x3 matrices.
-		4. Use elimination with partial pivoting for larger matrices.
+	Proceso:
+		1. Normaliza y valida la matriz.
+		2. Usa fórmulas directas para matrices 1x1 y 2x2.
+		3. Usa Sarrus para matrices 3x3.
+		4. Usa eliminación con pivoteo parcial para matrices más grandes.
 	"""
-	value = normalize_matrix(matrix, "matriz")
-	require_square(value, "matriz")
+def determinant(matrix: Any) -> Dict[str, Any]:
+	print(matrix)
+	value = normalize_matrix(matrix, "matriz") # Normaliza la entrada a un array de numpy 2D de floats.
+	require_square(value, "matriz") # Verifica que la matriz es cuadrada, de lo contrario lanza un ValueError.
 
-	size = value.shape[0]
+	size = value.shape[0] # Obtiene el tamaño de la matriz (número de filas o columnas, ya que es cuadrada).
 	if size == 1:
-		det_value = float(value[0, 0])
-		method = "directo_1x1"
+		det_value = float(value[0, 0]) # Para una matriz 1x1, el determinante es simplemente el valor del único elemento.
+		method = "directo 1x1"
 	elif size == 2:
+		# Para una matriz 2x2, el determinante se calcula con la fórmula ad - bc.
 		det_value = float(value[0, 0] * value[1, 1] - value[0, 1] * value[1, 0])
-		method = "directo_2x2"
+		method = "directo ad - bc"
 	elif size == 3:
+		# Para una matriz 3x3, se puede usar la regla de Sarrus para calcular el determinante.
 		det_value = float(
 			value[0, 0] * value[1, 1] * value[2, 2]
 			+ value[0, 1] * value[1, 2] * value[2, 0]
@@ -154,58 +161,62 @@ def determinant(matrix: Any) -> Dict[str, Any]:
 			- value[0, 0] * value[1, 2] * value[2, 1]
 			- value[0, 1] * value[1, 0] * value[2, 2]
 		)
-		method = "sarrus_3x3"
+		method = "sarrus 3x3"
 	else:
-		# For larger matrices, compute the determinant through elimination.
+		# Para matrices más grandes, calcula el determinante a través de eliminación.
+		# Este metodo transforma la matriz a forma triangular superior y luego calcula su determinante con el producto de su diagonal principal
 		work = value.astype(float).copy()
 		sign = 1.0
 		det_value = 1.0
 
 		for pivot_col in range(size):
-			# Use partial pivoting to improve numerical stability.
+			#Busca el pivote mas grande
 			pivot_row = pivot_col + int(np.argmax(np.abs(work[pivot_col:, pivot_col])))
 			pivot_value = work[pivot_row, pivot_col]
+			# Si no hay pivote valido entonces determinante = 0 (matriz singular)
 			if abs(pivot_value) < 1e-10:
 				return {"operation": "determinante", "method": "eliminacion", "result": 0.0}
 
-			# Every row swap flips the determinant sign.
+			# Intercambio de filas si es necesario (se invierte el signo)
 			if pivot_row != pivot_col:
 				work[[pivot_col, pivot_row]] = work[[pivot_row, pivot_col]]
-				sign *= -1.0
+				sign *= -1.0 #cada intercambio multiplica det por -1
 
-			# Accumulate pivot values before eliminating the rows below.
+			# Acumula los valores pivote antes de eliminar las filas de abajo.
 			pivot_value = work[pivot_col, pivot_col]
 			det_value *= pivot_value
 
+			# Elimina hacia abajo a forma triangular
 			for row in range(pivot_col + 1, size):
 				factor = work[row, pivot_col] / pivot_value
 				work[row, pivot_col:] = work[row, pivot_col:] - factor * work[pivot_col, pivot_col:]
 
+		# aplica el signo
 		det_value *= sign
 		method = "eliminacion"
 
 	return {"operation": "determinante", "method": method, "result": float(det_value)}
 
 
-def inverse(matrix: Any) -> Dict[str, Any]:
-	"""Compute the inverse using the most appropriate method for the size.
+"""Calcula la inversa usando el método más apropiado para el tamaño.
 
 	Args:
-		matrix: Square matrix to invert.
+		matrix: Matriz cuadrada a invertir.
 
 	Returns:
-		A dictionary with the operation name, the method used and the inverse
-		matrix.
+		Un diccionario con el nombre de la operación, el método utilizado y la
+		matriz inversa.
 
 	Raises:
-		ValueError: If the matrix is not square or if it is singular.
+		ValueError: Si la matriz no es cuadrada o si es singular.
 
-	Process:
-		1. Normalize and validate the matrix.
-		2. Reject singular matrices early by checking the determinant.
-		3. Use direct formulas for 1x1 and 2x2 matrices.
-		4. For larger matrices, build [A | I] and reduce it with Gauss-Jordan.
+	Proceso:
+		1. Normaliza y valida la matriz.
+		2. Rechaza matrices singulares temprano comprobando el determinante.
+		3. Usa fórmulas directas para matrices 1x1 y 2x2.
+		4. Para matrices más grandes, construye [A | I] y la reduce con Gauss-Jordan.
 	"""
+def inverse(matrix: Any) -> Dict[str, Any]:
 	value = normalize_matrix(matrix, "matriz")
 	require_square(value, "matriz")
 
@@ -227,7 +238,7 @@ def inverse(matrix: Any) -> Dict[str, Any]:
 		)
 		method = "directo_2x2"
 	else:
-		# Augment with the identity matrix to isolate the inverse on the right.
+		# Aumenta con la matriz identidad para aislar la inversa a la derecha.
 		augmented = np.hstack([value, np.eye(size, dtype=float)])
 		reduced, _ = reduced_row_echelon_form(augmented, pivot_columns=size)
 		left = reduced[:, :size]
@@ -239,41 +250,40 @@ def inverse(matrix: Any) -> Dict[str, Any]:
 	return {"operation": "inversa", "method": method, "result": matrix_to_list(result)}
 
 
-def _validate_system(matrix_a: Any, vector_b: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-	"""Normalize a system A x = b and build its augmented matrix.
+"""Normaliza un sistema A x = b y construye su matriz aumentada.
 
 	Args:
-		matrix_a: Coefficient matrix.
-		vector_b: Independent term vector.
+		matrix_a: Matriz de coeficientes.
+		vector_b: Vector de término independiente.
 
 	Returns:
-		A tuple containing the normalized A, the normalized b and the
-		augmented matrix [A | b].
+		Una tupla conteniendo la A normalizada, la b normalizada y la matriz
+		aumentada [A | b].
 	"""
+def _validate_system(matrix_a: Any, vector_b: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 	left = normalize_matrix(matrix_a, "matriz A")
 	right = normalize_vector(vector_b, left.shape[0], "vector b")
 	augmented = build_augmented_matrix(left, right)
 	return left, right, augmented
 
-
-def gauss(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
-	"""Solve or analyze a linear system using Gaussian elimination.
+"""Resuelve o analiza un sistema lineal usando eliminación de Gauss.
 
 	Args:
-		matrix_a: Coefficient matrix.
-		vector_b: Independent term vector.
+		matrix_a: Matriz de coeficientes.
+		vector_b: Vector de término independiente.
 
 	Returns:
-		A dictionary with the operation name, system status, ranks, echelon
-		matrix and, when the solution is unique, the solution vector.
+		Un diccionario con el nombre de la operación, estado del sistema, rangos,
+		matriz escalonada y, cuando la solución es única, el vector solución.
 
-	Process:
-		1. Normalize the system.
-		2. Build the augmented matrix [A | b].
-		3. Reduce it to row echelon form with pivots normalized to 1.
-		4. Compare ranks to classify the system.
-		5. If the solution is unique, recover it from the reduced form.
+	Proceso:
+		1. Normaliza el sistema.
+		2. Construye la matriz aumentada [A | b].
+		3. La reduce a forma escalonada por filas con pivotes normalizados a 1.
+		4. Compara rangos para clasificar el sistema.
+		5. Si la solución es única, la recupera de la forma reducida.
 	"""
+def gauss(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
 	left, right, augmented = _validate_system(matrix_a, vector_b)
 	echelon, _ = row_echelon_form(augmented, pivot_columns=left.shape[1])
 	status, rank_a, rank_augmented, _ = classify_system(left, right)
@@ -294,25 +304,24 @@ def gauss(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
 
 	return result
 
-
-def gauss_jordan(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
-	"""Solve or analyze a linear system using Gauss-Jordan elimination.
+"""Resuelve o analiza un sistema lineal usando eliminación de Gauss-Jordan.
 
 	Args:
-		matrix_a: Coefficient matrix.
-		vector_b: Independent term vector.
+		matrix_a: Matriz de coeficientes.
+		vector_b: Vector de término independiente.
 
 	Returns:
-		A dictionary with the operation name, system status, ranks, reduced
-		matrix and, when possible, the solution vector.
+		Un diccionario con el nombre de la operación, estado del sistema, rangos,
+		matriz reducida y, cuando es posible, el vector solución.
 
-	Process:
-		1. Normalize the system.
-		2. Build the augmented matrix [A | b].
-		3. Reduce it to reduced row echelon form.
-		4. Classify the system by comparing ranks.
-		5. Read the solution directly from the reduced matrix when it is unique.
+	Proceso:
+		1. Normaliza el sistema.
+		2. Construye la matriz aumentada [A | b].
+		3. La reduce a forma escalonada reducida por filas.
+		4. Clasifica el sistema comparando rangos.
+		5. Lee la solución directamente de la matriz reducida cuando es única.
 	"""
+def gauss_jordan(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
 	left, right, augmented = _validate_system(matrix_a, vector_b)
 	reduced, _ = reduced_row_echelon_form(augmented, pivot_columns=left.shape[1])
 	status, rank_a, rank_augmented, _ = classify_system(left, right)
@@ -333,26 +342,26 @@ def gauss_jordan(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
 	return result
 
 
-def cramer(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
-	"""Solve a linear system with Cramer's rule.
+"""Resuelve un sistema lineal con la regla de Cramer.
 
 	Args:
-		matrix_a: Coefficient matrix.
-		vector_b: Independent term vector.
+		matrix_a: Matriz de coeficientes.
+		vector_b: Vector de término independiente.
 
 	Returns:
-		A dictionary with the operation name, determinant of A and the
-		solution vector.
+		Un diccionario con el nombre de la operación, determinante de A y el
+		vector solución.
 
 	Raises:
-		ValueError: If A is not square or if det(A) is zero.
+		ValueError: Si A no es cuadrada o si det(A) es cero.
 
-	Process:
-		1. Normalize A and b.
-		2. Verify that A is square and invertible.
-		3. Replace each column of A by b one at a time.
-		4. Compute x_i = det(A_i) / det(A) for every variable.
+	Proceso:
+		1. Normaliza A y b.
+		2. Verifica que A es cuadrada e invertible.
+		3. Reemplaza cada columna de A por b una a la vez.
+		4. Calcula x_i = det(A_i) / det(A) para cada variable.
 	"""
+def cramer(matrix_a: Any, vector_b: Any) -> Dict[str, Any]:
 	left, right, _ = _validate_system(matrix_a, vector_b)
 	require_square(left, "matriz A")
 
