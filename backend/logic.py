@@ -248,7 +248,7 @@ def inverse(matrix: Any) -> Dict[str, Any]:
 		if not np.allclose(left, np.eye(size), atol=1e-8):
 			raise ValueError("La matriz no tiene inversa.")
 		result = reduced[:, size:]
-		method = "gauss_jordan"
+		method = "gauss jordan"
 
 	return {"operation": "inversa", "method": method, "result": matrix_to_list(result)}
 

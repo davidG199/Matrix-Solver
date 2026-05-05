@@ -53,6 +53,50 @@
       "kind": "single",
       "note": "Solo se pueden invertir matrices cuadradas no singulares.",
       "defaultDimensions": { "rowsA": 3, "colsA": 3 }
+    },
+    {
+      "key": "gauss",
+      "label": "Gauss",
+      "title": "Eliminación de Gauss",
+      "description": "Resuelve sistemas de ecuaciones lineales usando eliminación de Gauss.",
+      "chip": "A x = b → Forma Escalonada",
+      "endpoint": "/matrices/gauss",
+      "kind": "system",
+      "note": "Matriz A de coeficientes + vector b de términos independientes.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3 }
+    },
+    {
+      "key": "gauss-jordan",
+      "label": "Gauss-Jordan",
+      "title": "Eliminación de Gauss-Jordan",
+      "description": "Resuelve sistemas de ecuaciones lineales usando eliminación de Gauss-Jordan.",
+      "chip": "A x = b → Forma Escalonada Reducida",
+      "endpoint": "/matrices/gauss-jordan",
+      "kind": "system",
+      "note": "Matriz A de coeficientes + vector b de términos independientes.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3 }
+    },
+    {
+      "key": "transpuesta",
+      "label": "Transpuesta",
+      "title": "Transpuesta de una matriz",
+      "description": "Calcula la transpuesta de una matriz.",
+      "chip": "Matriz A = Matriz A^T",
+      "endpoint": "/matrices/traspuesta",
+      "kind": "single",
+      "note": "La transpuesta se obtiene intercambiando filas por columnas.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 4 }
+    },
+    {
+      "key": "cramer",
+      "label": "Cramer",
+      "title": "Regla de Cramer",
+      "description": "Resuelve sistemas de ecuaciones lineales usando la regla de Cramer.",
+      "chip": "A x = b → Solución (A cuadrada)",
+      "endpoint": "/matrices/cramer",
+      "kind": "system",
+      "note": "Matriz A cuadrada de coeficientes + vector b de términos independientes.",
+      "defaultDimensions": { "rowsA": 3, "colsA": 3 }
     }
    
 ]
