@@ -102,8 +102,7 @@ def multiply_matrices(matrix_a: Any, matrix_b: Any) -> Dict[str, Any]:
 	return {"operation": "multiplicacion", "result": matrix_to_list(np.matmul(left, right))}
 
 
-def transpose_matrix(matrix: Any) -> Dict[str, Any]:
-	"""Devuelve la traspuesta de una matriz validada.
+"""Devuelve la traspuesta de una matriz validada.
 
 	Args:
 		matrix: Matriz a trasponerion.
@@ -116,6 +115,7 @@ def transpose_matrix(matrix: Any) -> Dict[str, Any]:
 		2. Intercambia filas y columnas con el operador traspuesta.
 		3. Serializa el resultado para la API.
 	"""
+def transpose_matrix(matrix: Any) -> Dict[str, Any]:
 	value = normalize_matrix(matrix, "matriz")
 	return {"operation": "traspuesta", "result": matrix_to_list(value.T)}
 
@@ -227,7 +227,7 @@ def inverse(matrix: Any) -> Dict[str, Any]:
 
 	if size == 1:
 		result = np.array([[1.0 / value[0, 0]]], dtype=float)
-		method = "directo_1x1"
+		method = "directo 1x1"
 	elif size == 2:
 		det_value = value[0, 0] * value[1, 1] - value[0, 1] * value[1, 0]
 		if abs(det_value) < 1e-10:
@@ -236,11 +236,14 @@ def inverse(matrix: Any) -> Dict[str, Any]:
 			[[value[1, 1], -value[0, 1]], [-value[1, 0], value[0, 0]]],
 			dtype=float,
 		)
-		method = "directo_2x2"
+		method = "directo 2x2"
 	else:
 		# Aumenta con la matriz identidad para aislar la inversa a la derecha.
-		augmented = np.hstack([value, np.eye(size, dtype=float)])
+		# value = matriz ingresada por el usuario y normalizada -- np.eye(size) = matriz identidad del mismo tamaño que value
+		augmented = np.hstack([value, np.eye(size, dtype=float)]) 
+		#reducimos la matriz a forma escalonada reducida
 		reduced, _ = reduced_row_echelon_form(augmented, pivot_columns=size)
+		# Después de la reducción, la parte izquierda debería ser la identidad y la parte derecha será la inversa.
 		left = reduced[:, :size]
 		if not np.allclose(left, np.eye(size), atol=1e-8):
 			raise ValueError("La matriz no tiene inversa.")
