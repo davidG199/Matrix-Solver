@@ -722,8 +722,11 @@ const initialOperation = operations[0];
   }
 
   function renderResultSuccess(operation, responseData) {
-    // Para sistemas, el backend devuelve "matrix", para otros devuelve "result"
-    const result = operation.kind === "system" ? responseData?.matrix : responseData?.result;
+    const isCramer = operation.key === "cramer";
+    const result =
+      isCramer || operation.kind !== "system"
+        ? responseData?.result
+        : responseData?.matrix;
     const solution = Array.isArray(responseData?.solution) ? responseData.solution : null;
 
     function renderSolutionSummary(values) {
@@ -766,6 +769,20 @@ const initialOperation = operations[0];
           resultMatrix.innerHTML =
             '<div class="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-4 text-sm text-slate-400">El backend respondió, pero el determinante no es un número válido.</div>';
         }
+      } else if (operation.key === "cramer") {
+        const determinant = Number(responseData?.determinant);
+        if (solution && Number.isFinite(determinant)) {
+          resultMatrix.innerHTML = `
+        ${renderSolutionSummary(solution)}
+        <div class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-center">
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100">Regla de Cramer</p>
+          <p class="mt-2 text-sm text-slate-200">Det(A) = ${escapeHtml(formatNumber(determinant))}</p>
+        </div>
+      `;
+        } else {
+          resultMatrix.innerHTML =
+            '<div class="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-4 text-sm text-slate-400">Cramer respondió, pero no devolvió una solución válida.</div>';
+        }
       } else if (
         Array.isArray(result) &&
         result.length > 0 &&
@@ -789,7 +806,19 @@ const initialOperation = operations[0];
         ? escapeHtml(String(responseData.method))
         : "";
 
-      if (operation.kind === "system") {
+      if (operation.key === "cramer") {
+        const determinant = Number(responseData?.determinant);
+        const determinantLabel = Number.isFinite(determinant)
+          ? formatNumber(determinant)
+          : "N/A";
+
+        resultDimension.innerHTML = `
+          <div class="flex flex-col items-end gap-1">
+            <span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-cyan-200">Regla de Cramer</span>
+            <span class="text-xs text-slate-300">Det(A): ${escapeHtml(determinantLabel)}</span>
+          </div>
+        `;
+      } else if (operation.kind === "system") {
         // Para sistemas mostrar status, rangos y solución
         const status = responseData?.status || "desconocido";
         const rankA = responseData?.rank_a ?? "N/A";
