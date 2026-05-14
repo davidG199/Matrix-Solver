@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
 import operations from "../data/operations.json";
 
-const backendBaseUrl = import.meta.env.DEVELOP_API_URL;
+const backendBaseUrl = import.meta.env.PUBLIC_API_URL;
 
 const initialOperation = operations[0];
 ---
@@ -756,13 +756,15 @@ const initialOperation = operations[0];
       }
 
       return `
-        <li class="relative border-l border-white/10 pb-8 last:border-0 last:pb-0 pl-6">
-          <span class="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 border border-cyan-400/30 text-[0.65rem] font-bold text-cyan-300 ring-4 ring-slate-950">
-            ${stepNum}
-          </span>
-          <div class="flex flex-col gap-1">
-            <h4 class="text-sm font-semibold text-white">${title}</h4>
-            ${description ? `<p class="text-sm text-slate-400 font-mono">${description}</p>` : ""}
+        <li class="relative rounded-2xl border border-white/5 bg-slate-950/20 p-5 p-4 flex flex-col items-center text-center">
+          <div class="flex items-center gap-2 mb-2 w-full justify-center">
+            <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 border border-cyan-400/30 text-[0.6rem] font-bold text-cyan-300 ring-2 ring-slate-950">
+              ${stepNum}
+            </span>
+            <h4 class="text-[0.8rem] font-semibold text-white tracking-wide uppercase">${title}</h4>
+          </div>
+          ${description ? `<p class="text-[0.75rem] text-slate-400 font-mono leading-relaxed mb-1">${description}</p>` : ""}
+          <div class="w-full flex justify-center text-[0.85rem]">
             ${matrixHtml}
           </div>
         </li>
@@ -777,7 +779,7 @@ const initialOperation = operations[0];
             ${steps.length}
           </span>
         </h3>
-        <ol class="m-0 p-0 ml-2">
+        <ol class="m-0 p-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           ${stepsHtml}
         </ol>
       </div>
@@ -1152,7 +1154,7 @@ const initialOperation = operations[0];
 
     if (
       operation.kind === "single" &&
-      operation.key !== "traspuesta" &&
+      operation.key !== "transpuesta" &&
       (target.dataset.dimensionField === "rowsA" ||
         target.dataset.dimensionField === "colsA")
     ) {

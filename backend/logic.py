@@ -93,7 +93,7 @@ def gauss(matrix_a, vector_b):
             for k in range(i+1, filas):
                 if M[k][i] != 0:
                     M[[i, k]] = M[[k, i]]
-                    pasos.append(crear_paso("Intercambio de filas", f"Se intercambia la Fila {i+1} con la Fila {k+1} para poner un número no nulo en pívote.", np.copy(M)))
+                    pasos.append(crear_paso("Intercambio de filas", f"Fila {i+1} ↔ Fila {k+1}", np.copy(M)))
                     break
             else:
                 continue # No hay pivote en esta columna
@@ -103,7 +103,7 @@ def gauss(matrix_a, vector_b):
         if pivote != 1 and pivote != 0:
             M[i] = M[i] / pivote
             texto_multiplicador = formatear_fraccion(1/pivote)
-            pasos.append(crear_paso(f"Hacer el pivote 1 (Fila {i+1})", f"Fila {i+1} se multiplica por la fracción {texto_multiplicador}.", np.copy(M)))
+            pasos.append(crear_paso(f"Pivote 1 (Fila {i+1})", f"F{i+1} = F{i+1} * ({texto_multiplicador})", np.copy(M)))
             
         # 3. Hacer 0 todo lo que está POR DEBAJO
         for j in range(i+1, filas):
@@ -111,7 +111,7 @@ def gauss(matrix_a, vector_b):
             if factor != 0:
                 M[j] = M[j] - factor * M[i]
                 tfactor = formatear_fraccion(factor)
-                pasos.append(crear_paso(f"Hacer ceros por debajo (Fila {j+1})", f"Fila {j+1} = Fila {j+1} - ({tfactor}) * Fila {i+1}", np.copy(M)))
+                pasos.append(crear_paso(f"Ceros debajo (Fila {j+1})", f"F{j+1} = F{j+1} - ({tfactor}) * F{i+1}", np.copy(M)))
 
     return {"operation": "gauss", "result": formatear_matriz(M), "steps": pasos}
 
@@ -131,7 +131,7 @@ def gauss_jordan(matrix_a, vector_b):
             for k in range(i+1, filas):
                 if M[k][i] != 0:
                     M[[i, k]] = M[[k, i]]
-                    pasos.append(crear_paso("Intercambio de filas", f"Se intercambia la Fila {i+1} con la Fila {k+1}.", np.copy(M)))
+                    pasos.append(crear_paso("Intercambio de filas", f"Fila {i+1} ↔ Fila {k+1}", np.copy(M)))
                     break
             else:
                 continue
@@ -141,7 +141,7 @@ def gauss_jordan(matrix_a, vector_b):
         if pivote != 1 and pivote != 0:
             M[i] = M[i] / pivote
             texto_multiplicador = formatear_fraccion(1/pivote)
-            pasos.append(crear_paso(f"Hacer el pivote 1 (Fila {i+1})", f"Fila {i+1} se multiplica por la fracción {texto_multiplicador}.", np.copy(M)))
+            pasos.append(crear_paso(f"Pivote 1 (Fila {i+1})", f"F{i+1} = F{i+1} * ({texto_multiplicador})", np.copy(M)))
             
         # 3. Hacer 0 lo que está por ENCIMA y POR DEBAJO
         for j in range(filas):
@@ -151,7 +151,7 @@ def gauss_jordan(matrix_a, vector_b):
                     M[j] = M[j] - factor * M[i]
                     tfactor = formatear_fraccion(factor)
                     direccion = "arriba" if j < i else "abajo"
-                    pasos.append(crear_paso(f"Hacer ceros hacia {direccion} (Fila {j+1})", f"Fila {j+1} = Fila {j+1} - ({tfactor}) * Fila {i+1}", np.copy(M)))
+                    pasos.append(crear_paso(f"Ceros a {direccion} (Fila {j+1})", f"F{j+1} = F{j+1} - ({tfactor}) * F{i+1}", np.copy(M)))
 
     return {"operation": "gauss-jordan", "result": formatear_matriz(M), "steps": pasos}
 
@@ -177,10 +177,16 @@ def cramer(matrix_a, vector_b):
         X_result.append([xi])
         
         descripcion = (
-            f"Se remplaza la columna {i+1} de la matriz por el vector de resultados (b). "
-            f"El determinante (Δ_{i+1}) da {formatear_fraccion(detAi)}. "
-            f"Entonces x_{i+1} = ({formatear_fraccion(detAi)} / {formatear_fraccion(detA)}) = {formatear_fraccion(xi)}"
+            f"Columna {i+1} ← vector b. "
+            f"Δ_{i+1} = {formatear_fraccion(detAi)}. "
+            f"x_{i+1} = {formatear_fraccion(detAi)} / {formatear_fraccion(detA)} = {formatear_fraccion(xi)}"
         )
-        pasos.append(crear_paso(f"Encontrar el valor de la variable x{i+1}", descripcion, np.copy(Ai)))
+        pasos.append(crear_paso(f"Variable x{i+1}", descripcion, np.copy(Ai)))
         
-    return {"operation": "cramer", "result": formatear_matriz(X_result), "steps": pasos}
+    return {
+        "operation": "cramer", 
+        "result": formatear_matriz(X_result), 
+        "steps": pasos,
+        "determinant": formatear_fraccion(detA),
+        "solution": [formatear_fraccion(x[0]) for x in X_result]
+    }
